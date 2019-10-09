@@ -1,13 +1,22 @@
 package com.company.levelup.model;
 
+import javax.validation.constraints.Future;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Objects;
 
 public class LevelUp {
 
     private int levelUpId;
+
+    @NotNull(message = "Please supply a value for Customer ID")
     private int customerId;
+
+    @NotNull(message = "Please supply a value. Add '0' for purchases not eligible for points")
     private int points;
+
+    @Future(message = "Cannot be a past date")
+    @NotNull(message = "Please provide a membership start date")
     private LocalDate memberDate;
 
 

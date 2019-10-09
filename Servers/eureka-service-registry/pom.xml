@@ -20,6 +20,15 @@
 	</properties>
 
 	<dependencies>
+
+<!-- 	Dependency needed to run in Beth's computer	-->
+<!--		<dependency>-->
+<!--			<groupId>javax.xml.bind</groupId>-->
+<!--			<artifactId>jaxb-api</artifactId>-->
+<!--			<version>2.3.1</version>-->
+<!--		</dependency>-->
+<!--/ Dependency needed to run in Beth's computer -->
+
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>

@@ -66,6 +66,11 @@ public class ServiceLayerTest {
         doNothing().when(dao).deleteLevelUp(21);
         doReturn(null).when(dao).getLevelUp(21);
 
+        // Custom Methods
+
+        // Mock getByCustomerId
+        doReturn(levelUp).when(dao).getLevelUpByCustomerId(10);
+
         // Mock updatePoints
         doNothing().when(dao).updateLevelUp(updatePoints);
         doReturn(updatePoints).when(dao).getLevelUp(5);
@@ -138,6 +143,22 @@ public class ServiceLayerTest {
         int pointsLevelUp = levelUp.getPoints();
 
         assertEquals(pointsLevelUp, 250);
+
+    }
+
+    @Test
+    public void getLevelUpByCustomerId() {
+
+        LevelUpViewModel lvm = new LevelUpViewModel();
+        lvm.setLevelUpId(1);
+        lvm.setCustomerId(10);
+        lvm.setPoints(250);
+        lvm.setMemberDate(LocalDate.of(2019, 8, 21));
+        lvm = serviceLayer.saveLevelUp(lvm);
+
+        LevelUpViewModel lvm2 = serviceLayer.getLevelUpByCustomerId(lvm.getCustomerId());
+
+        assertEquals(lvm2, lvm);
 
     }
 }
