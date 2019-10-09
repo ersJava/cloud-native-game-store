@@ -81,14 +81,9 @@ public class ServiceLayer {
     }
 
     // ------------- *Custom Method* -------------
-
     // Update points only for Level Up account
     @Transactional
     public void updatePoints(LevelUpViewModel lvm) {
-
-//        if(customerId != lvm.getCustomerId()) {
-//            throw new IllegalArgumentException(String.format("Level Up account could not be retrieved for id %s", customerId));
-//        }
 
         LevelUpViewModel fromDatabase = findLevelUp(lvm.getLevelUpId());
         fromDatabase.setPoints(lvm.getPoints());
@@ -103,6 +98,7 @@ public class ServiceLayer {
 
     }
 
+    // Get points by Customer Id
     public int getPoints(int customerId) {
 
         LevelUp levelUp = dao.getLevelUpByCustomerId(customerId);
@@ -111,6 +107,17 @@ public class ServiceLayer {
             throw new NotFoundException(String.format("Level Up account could not be retrieved for customer id %s", customerId));
         else
         return dao.getPointsByCustomerId(customerId);
+
+    }
+
+    public LevelUpViewModel getLevelUpByCustomerId(int customerId) {
+
+        LevelUp levelUp = dao.getLevelUpByCustomerId(customerId);
+
+        if (levelUp == null)
+            throw new NotFoundException(String.format("Level Up account could not be retrieved for customer id %s", customerId));
+        else
+            return buildViewModel(levelUp);
 
     }
 

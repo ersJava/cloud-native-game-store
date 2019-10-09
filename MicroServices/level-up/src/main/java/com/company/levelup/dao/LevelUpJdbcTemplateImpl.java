@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 @Repository
-public class LevelUpJdbcTemplateImpl implements  LevelUpDao{
+public class LevelUpJdbcTemplateImpl implements  LevelUpDao {
 
     private static final String INSERT_LEVELUP_SQL =
             "insert into level_up (customer_id, points, member_date) values (?, ?, ?)";
@@ -71,7 +71,7 @@ public class LevelUpJdbcTemplateImpl implements  LevelUpDao{
     public LevelUp getLevelUp(int id) {
         try {
             return jdbcTemplate.queryForObject(SELECT_LEVELUP_SQL, this::mapRowToLevelUp, id);
-        } catch (EmptyResultDataAccessException e){
+        } catch (EmptyResultDataAccessException e) {
             return null;
         }
     }
@@ -99,11 +99,17 @@ public class LevelUpJdbcTemplateImpl implements  LevelUpDao{
 
     @Override
     public int getPointsByCustomerId(int customerId) {
-        return jdbcTemplate.queryForObject(SELECT_POINTS_BY_CUSTOMER_ID_SQL, new Object[] { customerId }, Integer.class);
+        return jdbcTemplate.queryForObject(SELECT_POINTS_BY_CUSTOMER_ID_SQL, new Object[]{customerId}, Integer.class);
     }
 
     @Override
     public LevelUp getLevelUpByCustomerId(int customerId) {
-        return jdbcTemplate.queryForObject(SELECT_LEVELUP_BY_CUSTOMER_ID_SQL, this::mapRowToLevelUp, customerId);
+        try {
+            return jdbcTemplate.queryForObject(SELECT_LEVELUP_BY_CUSTOMER_ID_SQL, this::mapRowToLevelUp, customerId);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+
+        }
     }
 }
+
