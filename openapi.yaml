@@ -6,20 +6,28 @@ info:
 servers:
   - url: 'http://localhost:9999'
     description: Config server
+    
   - url: 'http://localhost:8761'
     description: Eureka server
+  
   - url: 'http://localhost:8889'
     description: Admin Service
+  
   - url: 'http://localhost:8181'
     description: Retail Service
+  
   - url: 'http://localhost:7001'
     description: Level Up Service
+  
   - url: 'http://localhost:7002'
     description: Invoice Service
+  
   - url: 'http://localhost:7003'
     description: Inventory Service
+  
   - url: 'http://localhost:7004'
     description: Product Service
+  
   - url: 'http://localhost:7005'
     description: Customer Service
 
@@ -47,7 +55,7 @@ paths:
         '422':
           description: Incomplete Customer information. Some required fields missing.
     
-  #Customer View
+#Customer Services
   /customer:
     post:
       summary: Creates a new Customer and LevelUp account object.
@@ -79,6 +87,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Customer'
+                  
   /customer/{id}:
     get:
       summary: Retrieves the entry for the Customer by ID.
@@ -98,6 +107,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Customer'
+        '404':
+          description: Customer ID not found.
     delete:
       summary: Deletes the entry for the Customer by ID.
       parameters: 
@@ -112,6 +123,8 @@ paths:
       responses:
         '200':
           description: Customer successfully deleted.
+        '404':
+          description: Customer ID not found.
     put:
       summary: Updates the entry for the Customer by ID.
       parameters: 
@@ -133,12 +146,12 @@ paths:
         '200':
           description: Customer successfully updated.
         '404':
-          description: Customer not found.
+          description: Customer ID not found.
         '422':
           description: Customer ID on path must match.
 
-#Product View
-  /product:
+#Product Services
+  /products:
     post:
       summary: Creates a new Product.
       requestBody:
@@ -149,7 +162,7 @@ paths:
               $ref: '#/components/schemas/Product'
       responses:
         '201':
-          description: A Project object.
+          description: A Product object.
           content:
             application/json:
               schema:
@@ -169,7 +182,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Product'
-  /product/{id}:
+                  
+  /products/{id}:
     get:
       summary: Retrieves the entry for the Product by ID.
       parameters:
@@ -188,6 +202,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Product'
+        '404':
+          description: Product ID not found.
     delete:
       summary: Deletes the entry for the Product by ID.
       parameters: 
@@ -202,6 +218,8 @@ paths:
       responses:
         '200':
           description: Product successfully deleted.
+        '404':
+          description: Product ID not found.
     put:
       summary: Updates the entry for the Product by ID.
       parameters: 
@@ -223,11 +241,11 @@ paths:
         '200':
           description: Product successfully updated.
         '404':
-          description: Product not found.
+          description: Product ID not found.
         '422':
           description: Product ID on path must match.
           
-#Inventory View
+#Inventory Services
   /inventory:
     get:
       summary: Retrieves all Inventory entries.
@@ -240,6 +258,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Inventory'
+                  
   /inventory/{id}:
     get:
       summary: Retrieves the entry for the Inventory by ID.
@@ -254,25 +273,29 @@ paths:
             minimum: 1
       responses:
         '200':
-          description: Inventory object matching given ID.
+          description: Inventory matching given ID.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Inventory'
+        '404':
+          description: Inventory ID not found.
     delete:
-      summary: Deletes the entry for the Inventory by ID.
+      summary: Deletes the entry for the Inventory object by ID.
       parameters: 
         - name: id
           in: path
           required: true
-          description: ID of the Inventory you would like to delete.
+          description: ID of the Inventory object you would like to delete.
           schema:
             type: integer
             format: int64
             minimum: 1
       responses:
         '200':
-          description: Customer successfully deleted.
+          description: Inventory object successfully deleted.
+        '404':
+          description: Inventory ID not found.
     put:
       summary: Updates the quantity for the Inventory by ID.
       parameters: 
@@ -294,12 +317,12 @@ paths:
         '200':
           description: Inventory quantity successfully updated.
         '404':
-          description: Inventory not found.
+          description: Inventory ID not found.
         '422':
           description: Inventory ID on path must match.
           
-#Invoice View
-  /invoice:
+#Invoice Services
+  /invoices:
     get:
       summary: Retrieves all Invoice entries.
       responses:
@@ -311,7 +334,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Invoice'
-  /invoice/{id}:
+                  
+  /invoices/{id}:
     get:
       summary: Retrieves the entry for the Invoice by ID.
       parameters:
@@ -330,8 +354,171 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Invoice'
+        '404':
+          description: Invoice ID not found.
                 
 #  ----------------  Retail Service ---------------- 
+#Invoice Services
+  /retail/invoices:
+    post:
+      summary: Creates a new Invoice
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Invoice'
+      responses:
+        '201':
+          description: A Invoice object.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+        '400':
+          description: Invalid request syntax.
+        '422':
+          description: Incomplete Product information. Some required fields missing.
+              
+    get:
+      summary: Retrieves all Invoice entries.
+      responses:
+        '200':
+          description: A list of all Invoice entries.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Invoice'
+                  
+  /retail/invoices/{id}:
+    get:
+      summary: Retrieves the entry for the Invoice by ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the Invoice you would like to retrieve.
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+      responses:
+        '200':
+          description: Invoice object matching given ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+        '404':
+          description: Invoice ID not found.
+          
+  /retail/invoices/customer/{id}:
+    get:
+      summary: Retrieves the entries for the Invoices by Customer ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Customer ID of the Invoices you would like to retrieve.
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+      responses:
+        '200':
+          description: A list of all Invoice entries by given Customer ID.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Invoice'
+        '404':
+          description: Customer ID not found.
+
+# Product Services
+  /retail/products/inventory:
+    get:
+      summary: Retrieves all Product entries in Inventory.
+      responses:
+        '200':
+          description: A list of all Product entries.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+                  
+  /retail/products/{id}:
+    get:
+      summary: Retrieves the entry for the Product by ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the Product you would like to retrieve.
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+      responses:
+        '200':
+          description: Product matching given ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Product ID not found.
+          
+  /retail/products/invoice/{id}:
+    get:
+      summary: Retrieves the entries for the Product by Inventory ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Inventory ID of the Product you would like to retrieve.
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+      responses:
+        '200':
+          description: Product object matching given Inventory ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Inventory ID not found.
+  
+          
+# Level Up Services
+  /retail/levelup/customer/{id}:
+    get:
+      summary: Retrieves the entry for the Level Up points by Customer ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Customer ID of the Level Up points you would like to retrieve.
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+      responses:
+        '200':
+          description: A list of all Invoice entries by given Customer ID.
+          content:
+            application/json:
+              schema:
+                type: integer
+        '404':
+          description: Customer ID not found.
 
 components:
   schemas:
