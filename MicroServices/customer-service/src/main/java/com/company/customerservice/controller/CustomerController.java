@@ -55,7 +55,7 @@ public class CustomerController {
     }
 
     //uri: /customer/{last_name}
-    @RequestMapping(value = "/customer/{last_name}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/customer/findByLastName/{last_name}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     List<CustomerViewModel> getCustomersByLastName(@PathVariable(name = "last_name") String lastName){
 
