@@ -6,7 +6,7 @@ pipeline {
         stage('build') {
             steps {
               sh '''
-                 cd .MicroServices/invoice-service
+                 cd ./MicroServices/invoice-service
                  ./mvnw -DskipTests clean compile
               '''
             }
