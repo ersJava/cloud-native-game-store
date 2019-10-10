@@ -17,9 +17,9 @@ import static org.mockito.Mockito.*;
 
 public class ServiceLayerTest {
 
-    ServiceLayer serviceLayer;
+    private ServiceLayer serviceLayer;
 
-    LevelUpDao dao;
+    private LevelUpDao dao;
 
     @Before
     public void setUp() throws Exception {
@@ -157,7 +157,6 @@ public class ServiceLayerTest {
         lvm = serviceLayer.saveLevelUp(lvm);
 
         LevelUpViewModel lvm2 = serviceLayer.getLevelUpByCustomerId(lvm.getCustomerId());
-
         assertEquals(lvm2, lvm);
 
     }

@@ -63,7 +63,7 @@ public class ServiceLayer {
 
     }
 
-    public InvoiceViewModel findInvoice(int id) {
+    public InvoiceViewModel findInvoice(Integer id) {
 
         Invoice invoice = invoiceDao.getInvoice(id);
 
@@ -86,7 +86,7 @@ public class ServiceLayer {
         return ivmList;
     }
 
-    public void removeInvoice(int id) {
+    public void removeInvoice(Integer id) {
 
         Invoice invoice = invoiceDao.getInvoice(id);
 

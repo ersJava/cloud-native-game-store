@@ -69,6 +69,7 @@ public class LevelUpJdbcTemplateImpl implements  LevelUpDao {
 
     @Override
     public LevelUp getLevelUp(int id) {
+
         try {
             return jdbcTemplate.queryForObject(SELECT_LEVELUP_SQL, this::mapRowToLevelUp, id);
         } catch (EmptyResultDataAccessException e) {
