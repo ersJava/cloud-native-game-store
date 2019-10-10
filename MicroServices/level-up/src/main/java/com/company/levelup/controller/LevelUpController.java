@@ -54,7 +54,7 @@ public class LevelUpController {
     public void updatePointsOnAccount(@PathVariable("customerId") int customerId, @RequestBody @Valid LevelUpViewModel lvm) {
 
         if (customerId != lvm.getCustomerId()) {
-            throw new IllegalArgumentException(String.format("Level Up account could not be retrieved for id %s", customerId));
+            throw new IllegalArgumentException(String.format("Id %s in the PathVariable does not match the Id %s in the RequestBody ", customerId, lvm.getCustomerId()));
         }
 
         serviceLayer.updatePoints(lvm);
