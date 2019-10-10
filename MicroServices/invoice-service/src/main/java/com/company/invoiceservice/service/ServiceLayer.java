@@ -114,8 +114,6 @@ public class ServiceLayer {
                 InvoiceViewModel ivm = buildViewModel(i);
                 ivmList.add(ivm);
             }
-
             return ivmList;
     }
-
 }
