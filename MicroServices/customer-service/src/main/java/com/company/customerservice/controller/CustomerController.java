@@ -21,21 +21,21 @@ public class CustomerController {
     //Create a Customer
     @RequestMapping(value = "/customer", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
-    CustomerViewModel newCustomer(@RequestBody CustomerViewModel cvm){
+    public CustomerViewModel newCustomer(@RequestBody CustomerViewModel cvm){
         return serviceLayer.newCustomer(cvm);
     }
 
     //Read all Customers
     @RequestMapping(value = "/customer", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
-    List<CustomerViewModel> getAllCustomers(){
+    public List<CustomerViewModel> getAllCustomers(){
         return serviceLayer.getAllCustomers();
     }
 
     //Update a Customer
     @RequestMapping(value = "/customer", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.OK)
-    void updateCustomer(@RequestBody CustomerViewModel cvm){
+    public void updateCustomer(@RequestBody CustomerViewModel cvm){
         serviceLayer.updateCustomer(cvm);
     }
 
@@ -43,21 +43,21 @@ public class CustomerController {
     //Read a Customer
     @RequestMapping(value = "/customer/{id}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
-    CustomerViewModel getCustomer(@PathVariable int id){
+    public CustomerViewModel getCustomer(@PathVariable int id){
         return serviceLayer.getCustomer(id);
     }
 
     //Delete a Customer
     @RequestMapping(value = "/customer/{id}", method = RequestMethod.DELETE)
     @ResponseStatus(HttpStatus.OK)
-    void deleteCustomer(@PathVariable int id){
+    public void deleteCustomer(@PathVariable int id){
         serviceLayer.deleteCustomer(id);
     }
 
     //uri: /customer/{last_name}
     @RequestMapping(value = "/customer/findByLastName/{last_name}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
-    List<CustomerViewModel> getCustomersByLastName(@PathVariable(name = "last_name") String lastName){
+    public List<CustomerViewModel> getCustomersByLastName(@PathVariable(name = "last_name") String lastName){
 
         return serviceLayer.getCustomersByLastName(lastName);
     }
