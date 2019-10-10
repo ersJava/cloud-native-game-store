@@ -6,7 +6,7 @@ pipeline {
         stage('build') {
             steps {
               sh '''
-                 cd ./invoice-service
+                 cd ./MicroServices/invoice-service
                  ./mvnw -DskipTests clean compile
               '''
             }
@@ -15,7 +15,7 @@ pipeline {
         stage('test') {
             steps {
               sh '''
-                 cd invoice-service
+                 cd MicroServices/invoice-service
                      ./mvnw test
               '''
             }
@@ -24,7 +24,7 @@ pipeline {
         stage('deliver') {
             steps {
               sh '''
-                 cd invoice-service
+                 cd MicroServices/invoice-service
                      ./mvnw -DskipTests install
               '''
             }
