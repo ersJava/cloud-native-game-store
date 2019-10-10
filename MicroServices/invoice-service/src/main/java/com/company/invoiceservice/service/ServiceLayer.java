@@ -93,6 +93,9 @@ public class ServiceLayer {
         if(invoice == null)
             throw new NotFoundException(String.format("Invoice could not be retrieved for id %s", id));
 
+        List<InvoiceItem> list = invoiceItemDao.getItemsByInvoiceId(invoice.getInvoiceId());
+        list.forEach(item -> invoiceItemDao.deleteItem(item.getInvoiceItemId()));
+
         invoiceDao.deleteInvoice(id);
     }
 

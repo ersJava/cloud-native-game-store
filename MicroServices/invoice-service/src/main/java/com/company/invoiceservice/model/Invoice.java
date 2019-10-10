@@ -1,12 +1,19 @@
 package com.company.invoiceservice.model;
 
+import javax.validation.constraints.Future;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Objects;
 
 public class Invoice {
 
     private int invoiceId;
+
+    @NotNull(message = "Please supply a value for Customer ID")
     private int customerId;
+
+    @Future(message = "Cannot be a past date")
+    @NotNull(message = "Please provide a purchase date for order")
     private LocalDate purchaseDate;
 
     public int getInvoiceId() {
