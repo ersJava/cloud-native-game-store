@@ -37,7 +37,7 @@ public class InvoiceController {
     // Read by Id
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public InvoiceViewModel getInvoice(@PathVariable("id") int id) {
+    public InvoiceViewModel getInvoice(@PathVariable("id") Integer id) {
 
         return serviceLayer.findInvoice(id);
     }
@@ -45,7 +45,7 @@ public class InvoiceController {
     // Delete
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteInvoice(@PathVariable("id") int id) {
+    public void deleteInvoice(@PathVariable("id") Integer id) {
 
         serviceLayer.removeInvoice(id);
     }
@@ -53,15 +53,9 @@ public class InvoiceController {
     // Custom method - find invoice by customer Id
     @GetMapping("/customer/{customerId}")
     @ResponseStatus(HttpStatus.OK)
-    public List<InvoiceViewModel> getInvoicesByCustomerId(@PathVariable("customerId") int customerId) {
+    public List<InvoiceViewModel> getInvoicesByCustomerId(@PathVariable("customerId") Integer customerId) {
 
         return serviceLayer.findInvoicesByCustomerId(customerId);
 
     }
-
-
-
-
-
-
 }

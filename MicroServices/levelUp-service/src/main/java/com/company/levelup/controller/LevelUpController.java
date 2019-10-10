@@ -16,7 +16,7 @@ import java.util.List;
 public class LevelUpController {
 
     @Autowired
-    ServiceLayer serviceLayer;
+    private ServiceLayer serviceLayer;
 
     //Create
     @PostMapping
@@ -77,6 +77,4 @@ public class LevelUpController {
 
         return serviceLayer.getLevelUpByCustomerId(customerId);
     }
-
-
 }
