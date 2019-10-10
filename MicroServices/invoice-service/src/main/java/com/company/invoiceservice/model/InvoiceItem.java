@@ -1,5 +1,7 @@
 package com.company.invoiceservice.model;
 
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Objects;
 
@@ -7,8 +9,14 @@ public class InvoiceItem {
 
     private int invoiceItemId;
     private int invoiceId;
+
+    @NotNull(message = "Please supply an inventory ID")
     private int inventoryId;
+
+    @NotNull(message = "Please supply a quantity for item")
     private int quantity;
+
+    @Digits(integer = 7, fraction = 2)
     private BigDecimal unitPrice;
 
     public int getInvoiceItemId() {
