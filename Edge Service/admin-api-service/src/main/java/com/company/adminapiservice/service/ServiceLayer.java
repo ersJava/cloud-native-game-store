@@ -51,20 +51,6 @@ public class ServiceLayer {
             throw new CustomerNotFoundException("No Customer found in the database for id #" + ovm.getCustomerId() + " !");
         }
 
-        //Create a new Invoice
-        InvoiceViewModel invoice = new InvoiceViewModel();
-
-        invoice.setCustomerId(ovm.getCustomerId());
-        invoice.setPurchaseDate(ovm.getPurchaseDate());
-        invoice.setInvoiceItems(null);
-
-        //Creates an Invoice using the microService
-        invoice = invoiceService.createInvoice(invoice);
-        int invoiceId = invoice.getInvoiceId();
-
-        //Adding the invoiceId for each invoiceItem
-        filteredInvoiceItems.stream().forEach(invoiceItem -> invoiceItem.setInvoiceId(invoiceId));
-
         //Check that there is enough of the product in the inventory, and update the inventory
         for (InvoiceItem ii: filteredInvoiceItems) {
             InventoryViewModel ivm = inventoyService.readInventory(ii.getInventoryId());
@@ -88,10 +74,6 @@ public class ServiceLayer {
         for(int i = 0; i < filteredInvoiceItems.size(); i++){
             filteredInvoiceItems.get(i).setUnitPrice(BigDecimal.valueOf(Double.valueOf(products.get(i).getListPrice())));
         }
-
-        //Adding the invoiceItems to the dataBase. Send the whole List. Use RabbitMQ?
-        //invoiceService.createInvoiceItems()
-
 
         //Calculating the total
         double total = 0;
@@ -122,6 +104,16 @@ public class ServiceLayer {
             ovm.setPointsEarned(0);
             ovm.setTotalPoints(0);
         }
+
+        //Create a new Invoice
+        InvoiceViewModel invoice = new InvoiceViewModel();
+
+        invoice.setCustomerId(ovm.getCustomerId());
+        invoice.setPurchaseDate(ovm.getPurchaseDate());
+        invoice.setInvoiceItems(filteredInvoiceItems);
+
+        //Creates an Invoice using the microService
+        invoice = invoiceService.createInvoice(invoice);
 
 
         return ovm;
