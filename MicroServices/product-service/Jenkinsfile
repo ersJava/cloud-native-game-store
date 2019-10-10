@@ -1,0 +1,34 @@
+pipeline {
+    agent any
+
+    stages {
+
+        stage('build') {
+            steps {
+              sh '''
+                 cd ./MicroServices/product-service
+                 ./mvnw -DskipTests clean compile
+              '''
+            }
+        }
+
+        stage('test') {
+            steps {
+              sh '''
+                 cd MicroServices/product-service
+                     ./mvnw test
+              '''
+            }
+        }
+
+        stage('deliver') {
+            steps {
+              sh '''
+                 cd MicroServices/product-service
+                     ./mvnw -DskipTests install
+              '''
+            }
+        }
+
+    }
+}
