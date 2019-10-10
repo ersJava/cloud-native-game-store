@@ -1,13 +1,13 @@
-package com.company.levelUpservice;
+package com.company.invoiceservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class LevelUpServiceApplication {
+public class InvoiceServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(LevelUpServiceApplication.class, args);
+		SpringApplication.run(InvoiceServiceApplication.class, args);
 	}
 
 }

@@ -39,7 +39,7 @@ public class ServiceLayer {
         levelUp.setCustomerId(lvm.getCustomerId());
         levelUp.setPoints(lvm.getPoints());
         levelUp.setMemberDate(lvm.getMemberDate());
-        levelUp = dao.addLeveUp(levelUp);
+        levelUp = dao.addLevelUp(levelUp);
 
         lvm.setLevelUpId(levelUp.getLevelUpId());
 
@@ -48,7 +48,7 @@ public class ServiceLayer {
 
     public List<LevelUpViewModel> findAllLevelUp() {
 
-        List<LevelUp> levelUpList = dao.getAll();
+        List<LevelUp> levelUpList = dao.getAllLevelUps();
 
         List<LevelUpViewModel> lvmList = new ArrayList<>();
 
@@ -80,7 +80,7 @@ public class ServiceLayer {
         dao.deleteLevelUp(id);
     }
 
-    // ------------- *Custom Method* -------------
+     //  ---- Custom Method ----
     // Update points only for Level Up account
     @Transactional
     public void updatePoints(LevelUpViewModel lvm) {

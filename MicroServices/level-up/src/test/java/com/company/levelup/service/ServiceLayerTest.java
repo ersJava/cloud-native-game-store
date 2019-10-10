@@ -24,12 +24,12 @@ public class ServiceLayerTest {
     @Before
     public void setUp() throws Exception {
 
-        setUpLevelUpDao();
+        setUpLevelUpDaoMock();
 
         serviceLayer = new ServiceLayer(dao);
     }
 
-    private void setUpLevelUpDao() {
+    private void setUpLevelUpDaoMock() {
 
         dao = mock(LevelUpJdbcTemplateImpl.class);
 
@@ -52,12 +52,12 @@ public class ServiceLayerTest {
         updatePoints.setMemberDate(LocalDate.of(2019, 8, 21));
 
         // Mock save
-        doReturn(levelUp).when(dao).addLeveUp(levelUp1);
+        doReturn(levelUp).when(dao).addLevelUp(levelUp1);
 
         // Mock getAll
         List<LevelUp> list = new ArrayList<>();
         list.add(levelUp);
-        doReturn(list).when(dao).getAll();
+        doReturn(list).when(dao).getAllLevelUps();
 
         // Mock getById
         doReturn(levelUp).when(dao).getLevelUp(1);

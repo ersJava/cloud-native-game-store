@@ -55,7 +55,7 @@ public class LevelUpJdbcTemplateImpl implements  LevelUpDao {
 
     @Override
     @Transactional
-    public LevelUp addLeveUp(LevelUp levelUp) {
+    public LevelUp addLevelUp(LevelUp levelUp) {
 
         jdbcTemplate.update(INSERT_LEVELUP_SQL,
                 levelUp.getCustomerId(),
@@ -77,14 +77,15 @@ public class LevelUpJdbcTemplateImpl implements  LevelUpDao {
     }
 
     @Override
-    public List<LevelUp> getAll() {
+    public List<LevelUp> getAllLevelUps() {
+
         return jdbcTemplate.query(SELECT_ALL_LEVELUP_OBJ_SQL, this::mapRowToLevelUp);
     }
 
     @Override
     public void deleteLevelUp(int id) {
-        jdbcTemplate.update(DELETE_LEVELUP_SQL, id);
 
+        jdbcTemplate.update(DELETE_LEVELUP_SQL, id);
     }
 
     @Override
@@ -104,6 +105,7 @@ public class LevelUpJdbcTemplateImpl implements  LevelUpDao {
 
     @Override
     public LevelUp getLevelUpByCustomerId(int customerId) {
+
         try {
             return jdbcTemplate.queryForObject(SELECT_LEVELUP_BY_CUSTOMER_ID_SQL, this::mapRowToLevelUp, customerId);
         } catch (EmptyResultDataAccessException e) {

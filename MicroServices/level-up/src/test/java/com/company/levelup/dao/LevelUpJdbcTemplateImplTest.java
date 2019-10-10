@@ -25,7 +25,7 @@ public class LevelUpJdbcTemplateImplTest {
     @Before
     public void setUp() throws Exception {
 
-        List<LevelUp> allLevelUp = dao.getAll();
+        List<LevelUp> allLevelUp = dao.getAllLevelUps();
         allLevelUp.forEach(levelUp -> dao.deleteLevelUp(levelUp.getLevelUpId()));
     }
 
@@ -41,7 +41,7 @@ public class LevelUpJdbcTemplateImplTest {
         levelUp.setPoints(250);
         levelUp.setMemberDate(LocalDate.of(2019, 8, 21));
 
-        levelUp = dao.addLeveUp(levelUp);
+        levelUp = dao.addLevelUp(levelUp);
 
         LevelUp fromService = dao.getLevelUp(levelUp.getLevelUpId());
         assertEquals(fromService, levelUp);
@@ -52,16 +52,16 @@ public class LevelUpJdbcTemplateImplTest {
     }
 
     @Test
-    public void getAll() {
+    public void getAllLevelUps() {
 
         LevelUp levelUp = new LevelUp();
         levelUp.setCustomerId(10);
         levelUp.setPoints(250);
         levelUp.setMemberDate(LocalDate.of(2019, 8, 21));
 
-        levelUp = dao.addLeveUp(levelUp);
+        dao.addLevelUp(levelUp);
 
-        List<LevelUp> list = dao.getAll();
+        List<LevelUp> list = dao.getAllLevelUps();
         assertEquals(list.size(), 1);
 
     }
@@ -73,7 +73,7 @@ public class LevelUpJdbcTemplateImplTest {
         levelUp.setCustomerId(10);
         levelUp.setPoints(250);
         levelUp.setMemberDate(LocalDate.of(2019, 8, 21));
-        levelUp = dao.addLeveUp(levelUp);
+        levelUp = dao.addLevelUp(levelUp);
 
         levelUp.setCustomerId(10);
         levelUp.setPoints(350);
@@ -93,7 +93,7 @@ public class LevelUpJdbcTemplateImplTest {
         levelUp.setCustomerId(10);
         levelUp.setPoints(250);
         levelUp.setMemberDate(LocalDate.of(2019, 8, 21));
-        dao.addLeveUp(levelUp);
+        dao.addLevelUp(levelUp);
 
         int pointsByCustomerId = dao.getPointsByCustomerId(10);
         assertEquals(250, pointsByCustomerId);
@@ -107,7 +107,7 @@ public class LevelUpJdbcTemplateImplTest {
         levelUp.setCustomerId(10);
         levelUp.setPoints(250);
         levelUp.setMemberDate(LocalDate.of(2019, 8, 21));
-        dao.addLeveUp(levelUp);
+        dao.addLevelUp(levelUp);
 
         LevelUp fromService = dao.getLevelUpByCustomerId(10);
         assertEquals(fromService, levelUp);
