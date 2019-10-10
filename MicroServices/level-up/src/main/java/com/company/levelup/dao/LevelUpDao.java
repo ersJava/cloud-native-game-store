@@ -7,11 +7,11 @@ import java.util.List;
 public interface LevelUpDao {
 
     // Basic CRUD
-    LevelUp addLeveUp(LevelUp levelUp);
+    LevelUp addLevelUp(LevelUp levelUp);
 
     LevelUp getLevelUp(int id);
 
-    List<LevelUp> getAll();
+    List<LevelUp> getAllLevelUps();
 
     void deleteLevelUp(int id);
 
