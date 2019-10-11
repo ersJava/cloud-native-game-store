@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.*;
 
 public class ServiceLayerTest {
@@ -39,10 +40,17 @@ public class ServiceLayerTest {
 
         invoiceDao = mock(InvoiceDaoJdbcTemplateImpl.class);
 
+        //Invoice To Return
         Invoice invoice = new Invoice();
         invoice.setInvoiceId(1);
         invoice.setCustomerId(10);
         invoice.setPurchaseDate(LocalDate.of(2019, 10, 15));
+
+        //Second Invoice for the List
+        Invoice invoice2 = new Invoice();
+        invoice2.setInvoiceId(2);
+        invoice2.setCustomerId(10);
+        invoice2.setPurchaseDate(LocalDate.of(2019, 10, 15));
 
         Invoice invoice1 = new Invoice();
         invoice1.setCustomerId(10);
@@ -60,6 +68,7 @@ public class ServiceLayerTest {
         // Mock findAll
         List<Invoice> list = new ArrayList<>();
         list.add(invoice);
+        list.add(invoice2);
         doReturn(list).when(invoiceDao).getAllInvoices();
 
         // Mock findById
@@ -93,6 +102,35 @@ public class ServiceLayerTest {
         invoiceItem.setQuantity(3);
         invoiceItem.setUnitPrice(new BigDecimal("4.99"));
 
+        //A second Invoice Item for the List
+        InvoiceItem invoiceItem2 = new InvoiceItem();
+        invoiceItem2.setInvoiceItemId(970);
+        invoiceItem2.setInvoiceId(1);
+        invoiceItem2.setInventoryId(40002);
+        invoiceItem2.setQuantity(3);
+        invoiceItem2.setUnitPrice(new BigDecimal("4.99"));
+
+        //////////////////////////////////////////////////////////////////////
+        //Mocks for the invoice2
+        //////////////////////////////////////////////////////////////////////
+        InvoiceItem invoiceItem3 = new InvoiceItem();
+        invoiceItem3.setInvoiceItemId(791);
+        invoiceItem3.setInvoiceId(2);
+        invoiceItem3.setInventoryId(40001);
+        invoiceItem3.setQuantity(3);
+        invoiceItem3.setUnitPrice(new BigDecimal("4.99"));
+
+        //A second Invoice Item for the List
+        InvoiceItem invoiceItem4 = new InvoiceItem();
+        invoiceItem4.setInvoiceItemId(971);
+        invoiceItem4.setInvoiceId(2);
+        invoiceItem4.setInventoryId(40002);
+        invoiceItem4.setQuantity(3);
+        invoiceItem4.setUnitPrice(new BigDecimal("4.99"));
+
+        ///////////////////////////////////////////////////////////////////////
+
+        //Calling object
         InvoiceItem invoiceItem1 = new InvoiceItem();
         invoiceItem1.setInvoiceId(1);
         invoiceItem1.setInventoryId(40001);
@@ -101,12 +139,19 @@ public class ServiceLayerTest {
 
         List<InvoiceItem> list = new ArrayList<>();
         list.add(invoiceItem);
+        list.add(invoiceItem2);
+
+        List<InvoiceItem> list2 = new ArrayList<>();
+        list2.add(invoiceItem3);
+        list2.add(invoiceItem4);
+
 
         // Mock addItem
         doReturn(invoiceItem).when(invoiceItemDao).addInvoiceItem(invoiceItem1);
 
         // Mock getItemByInvoiceId
         doReturn(list).when(invoiceItemDao).getItemsByInvoiceId(1);
+        doReturn(list2).when(invoiceItemDao).getItemsByInvoiceId(2);
 
         // Mock data
         InvoiceItem updateItem= new InvoiceItem();
@@ -159,6 +204,15 @@ public class ServiceLayerTest {
     }
 
     @Test
+    public void getInvoiceItemByInventoryIdTest(){
+
+        List<InvoiceItem> invoiceItems = servicelayer.getInvoiceItemByInventoryId(40001);
+
+        assertEquals(invoiceItems.size(), 2);
+
+    }
+
+    @Test
     public void updateInvoice() {
 
         Invoice updateInvoice = new Invoice();
@@ -189,4 +243,5 @@ public class ServiceLayerTest {
         list = servicelayer.findInvoicesByCustomerId(999);
         assertEquals(list.size(), 0);
     }
+
 }

@@ -330,26 +330,35 @@ public class ServiceLayer {
     public void deleteProduct(int id){
 
         try{
+            //Get all the Inventory registers related to the product
             List<InventoryViewModel> inventoryListForProduct = inventoyService.getAllInventoriesByProductId(id);
 
-            List<Integer> idOfInventories;
-
+            //List that stores the Inventories with a quantity of 0
             List<InventoryViewModel> emptyInventoryForProduct;
 
             emptyInventoryForProduct = inventoryListForProduct.stream().filter(inventoryViewModel -> inventoryViewModel.getQuantity() == 0).collect(Collectors.toList());
+
+            //List with the id of the Inventories
+            List<Integer> idOfInventories = new ArrayList<>();
 
             //Get all the id(s) of the inventories related to the product
             inventoryListForProduct.stream().forEach(inventoryViewModel -> idOfInventories.add(inventoryViewModel.getInventoryId()));
 
             if(emptyInventoryForProduct.size() == inventoryListForProduct.size()){
-                try{
-                    for (int inventoryId:idOfInventories) {
-                        invoiceService.
+                int count = 0;
+
+                for (int inventoryId : idOfInventories) {
+                    try {
+                        invoiceService.getInvoiceItemsByInventoryId(inventoryId);
+                    } catch (RuntimeException g) {
+                        count++;
                     }
+                }
 
-
-                }catch (RuntimeException f){
-
+                if(count != inventoryListForProduct.size()){
+                    throw new DeleteNotAllowedException("Impossible Deletion, there is InvoiceItems related to the Product");
+                }else{
+                    productService.deleteProduct(id);
                 }
 
             }else{
