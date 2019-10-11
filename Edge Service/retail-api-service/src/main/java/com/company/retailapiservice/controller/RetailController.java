@@ -10,37 +10,37 @@ import java.util.List;
 public class RetailController {
 
 
-    @RequestMapping(value = "retail/invoices", method = RequestMethod.POST)
+    @RequestMapping(value = "/invoice", method = RequestMethod.POST)
     public InvoiceViewModel submitInvoice(@RequestBody InvoiceViewModel invoice) {
         return null;
     }
 
-    @RequestMapping(value = "retail/invoices/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/invoice/{id}", method = RequestMethod.GET)
     public InvoiceViewModel getInvoiceById(@PathVariable int id) {
         return null;
     }
 
-    @RequestMapping(value = "retail/invoices", method = RequestMethod.GET)
+    @RequestMapping(value = "/invoice", method = RequestMethod.GET)
     public List<InvoiceViewModel> getAllInvoices() {
         return null;
     }
 
-    @RequestMapping(value = "retail/invoices/customer/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/invoices/customer/{id}", method = RequestMethod.GET)
     public List<InvoiceViewModel> getInvoicesByCustomerId(@PathVariable int id) {
         return null;
     }
 
-    @RequestMapping(value = "retail/products/inventory", method = RequestMethod.GET)
+    @RequestMapping(value = "/products/inventory", method = RequestMethod.GET)
     public List<ProductViewModel> getProductsInInventory() {
         return null;
     }
 
-    @RequestMapping(value = "retail/products/inventory/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/products/inventory/{id}", method = RequestMethod.GET)
     public ProductViewModel getProductByInventoryId(@PathVariable int id) {
         return null;
     }
 
-    @RequestMapping(value = "retail/products/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/products/{id}", method = RequestMethod.GET)
     public ProductViewModel getProductById(@PathVariable int id) {
         return null;
     }

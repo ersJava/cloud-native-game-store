@@ -1,15 +1,16 @@
-package com.company.invoiceservice.viewmodel;
+package com.company.retailapiservice.viewmodel;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Future;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class InvoiceViewModel {
+public class OrderForm {
 
     private Integer invoiceId;
 
@@ -22,7 +23,11 @@ public class InvoiceViewModel {
 
     @NotEmpty(message = "Please supply an purchase item for invoice order")
     @Valid
-    private List<InvoiceItemViewModel> itemList = new ArrayList<>();
+    private List<InvoiceItem> itemList = new ArrayList<>();
+
+    private int levelUpPointsEarned;
+
+    private BigDecimal orderTotal;
 
     public Integer getInvoiceId() {
         return invoiceId;
@@ -48,11 +53,27 @@ public class InvoiceViewModel {
         this.purchaseDate = purchaseDate;
     }
 
-    public List<InvoiceItemViewModel> getItemList() {
+    public int getLevelUpPointsEarned() {
+        return levelUpPointsEarned;
+    }
+
+    public void setLevelUpPointsEarned(int levelUpPointsEarned) {
+        this.levelUpPointsEarned = levelUpPointsEarned;
+    }
+
+    public BigDecimal getOrderTotal() {
+        return orderTotal;
+    }
+
+    public void setOrderTotal(BigDecimal orderTotal) {
+        this.orderTotal = orderTotal;
+    }
+
+    public List<InvoiceItem> getItemList() {
         return itemList;
     }
 
-    public void setItemList(List<InvoiceItemViewModel> itemList) {
+    public void setItemList(List<InvoiceItem> itemList) {
         this.itemList = itemList;
     }
 
@@ -60,15 +81,17 @@ public class InvoiceViewModel {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        InvoiceViewModel that = (InvoiceViewModel) o;
-        return getInvoiceId().equals(that.getInvoiceId()) &&
-                getCustomerId().equals(that.getCustomerId()) &&
-                getPurchaseDate().equals(that.getPurchaseDate()) &&
-                getItemList().equals(that.getItemList());
+        OrderForm orderForm = (OrderForm) o;
+        return getLevelUpPointsEarned() == orderForm.getLevelUpPointsEarned() &&
+                getInvoiceId().equals(orderForm.getInvoiceId()) &&
+                getCustomerId().equals(orderForm.getCustomerId()) &&
+                getPurchaseDate().equals(orderForm.getPurchaseDate()) &&
+                getItemList().equals(orderForm.getItemList()) &&
+                getOrderTotal().equals(orderForm.getOrderTotal());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getInvoiceId(), getCustomerId(), getPurchaseDate(), getItemList());
+        return Objects.hash(getInvoiceId(), getCustomerId(), getPurchaseDate(), getItemList(), getLevelUpPointsEarned(), getOrderTotal());
     }
 }

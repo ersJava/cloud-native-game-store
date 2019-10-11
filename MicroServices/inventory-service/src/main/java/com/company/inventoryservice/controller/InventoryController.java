@@ -62,7 +62,7 @@ public class InventoryController {
     }
 
     // Custom method - Get inventory entry by product Id
-    @GetMapping("/byProductId/{productId}")
+    @GetMapping("/product/{productId}")
     @ResponseStatus(HttpStatus.OK)
     public List<InventoryViewModel> getAllInventoriesByProductId(@PathVariable("productId") Integer productId) {
 
