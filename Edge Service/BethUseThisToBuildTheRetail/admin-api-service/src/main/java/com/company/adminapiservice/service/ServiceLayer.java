@@ -181,6 +181,7 @@ public class ServiceLayer {
         return filteredList;
     }
 
+    //Update inventory and create InvoiceItems
     public List<InvoiceItem> updateInventory(List<InventoryViewModel> inventoryList, int quantityToBuy){
 
         List<InvoiceItem> invoiceItemsToReturn = new ArrayList<>();

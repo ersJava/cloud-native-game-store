@@ -207,7 +207,7 @@ public class ServiceLayerTest {
     @Test
     public void getInvoiceItemByInventoryIdTest(){
 
-        List<InvoiceItem> invoiceItems = servicelayer.getInvoiceItemByInventoryId(40001);
+        List<InvoiceItemViewModel> invoiceItems = servicelayer.getInvoiceItemByInventoryId(40001);
 
         assertEquals(invoiceItems.size(), 2);
 

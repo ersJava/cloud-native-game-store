@@ -75,20 +75,26 @@ public class ServiceLayer {
     //Delete a Customer
     public void deleteCustomer(int id){
 
+        int count = 0;
+
         //The deletion is going to be processed if the Customer does not have any related invoices
         try{
             invoiceService.getInvoicesByCustomerId(id);
-            throw new DeleteNotAllowedException("Impossible Delete, there is Invoice registers associated with this Customer");
+            count++;
         }catch (RuntimeException e){
-
             try{
                 levelUpService.getLevelUpAccountByCustomerId(id);
-                throw new DeleteNotAllowedException("Impossible Deletion, there is LevelUp Account associated with this Customer");
+                count++;
 
             }catch (RuntimeException f){
                 customerService.deleteCustomer(id);
             }
         }
+
+        if(count != 0){
+            throw new DeleteNotAllowedException("Impossible Deletion, there is LevelUp Account associated with this Customer");
+        }
+
     }
 
     //uri: /customer/findByLastName/{last_name}
@@ -330,6 +336,7 @@ public class ServiceLayer {
     public void deleteProduct(int id){
 
         int impossibleDelete = 0;
+        boolean inStock = false;
 
         try{
             //Get all the Inventory registers related to the product
@@ -365,6 +372,7 @@ public class ServiceLayer {
 
             }else{
                 impossibleDelete++;
+                inStock = true;
             }
 
         }catch (RuntimeException e){
@@ -373,7 +381,12 @@ public class ServiceLayer {
 
 
         if(impossibleDelete != 0){
-            throw new DeleteNotAllowedException("Impossible Deletion, there is Products still in inventory");
+            if(inStock){
+                throw new DeleteNotAllowedException("Impossible Deletion, there is Products still in inventory");
+            }else{
+                throw new DeleteNotAllowedException("Impossible Deletion, this products have associated InvoiceItems");
+            }
+
         }
 
     }

@@ -11,7 +11,7 @@ public class InvoiceViewModel {
     private Integer customerId;
     private LocalDate purchaseDate;
 
-    private List<InvoiceItem> invoiceItems;
+    private List<InvoiceItemViewModel> invoiceItems;
 
     //getters and setters
     public int getInvoiceId() {
@@ -38,11 +38,11 @@ public class InvoiceViewModel {
         this.purchaseDate = purchaseDate;
     }
 
-    public List<InvoiceItem> getInvoiceItems() {
+    public List<InvoiceItemViewModel> getInvoiceItems() {
         return invoiceItems;
     }
 
-    public void setInvoiceItems(List<InvoiceItem> invoiceItems) {
+    public void setInvoiceItems(List<InvoiceItemViewModel> invoiceItems) {
         this.invoiceItems = invoiceItems;
     }
 
