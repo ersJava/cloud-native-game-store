@@ -78,12 +78,12 @@ public class InvoiceController {
 
         return serviceLayer.saveItem(item);
     }
-
+  
     //Get Invoice Items by inventoryId
     @GetMapping("/inventory/{inventoryId}")
     @ResponseStatus(HttpStatus.OK)
     public List<InvoiceItem> getInvoiceItemsByInventoryId(@PathVariable("inventoryId") Integer inventoryId) {
+
         return serviceLayer.getInvoiceItemByInventoryId(inventoryId);
     }
-
 }
