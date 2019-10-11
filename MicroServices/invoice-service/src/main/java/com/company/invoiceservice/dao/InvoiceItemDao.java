@@ -13,6 +13,8 @@ public interface InvoiceItemDao {
 
     List<InvoiceItem> getAllItems();
 
+    void updateItem(InvoiceItem invoiceItem);
+
     void deleteItem(int id);
 
     // Custom Method

@@ -70,7 +70,21 @@ public class InvoiceDaoJdbcTemplateImplTest {
 
         List<Invoice> list = invoiceDao.getAllInvoices();
         assertEquals(list.size(), 1);
+    }
 
+    @Test
+    public void updateInvoice() {
+
+        Invoice invoice = new Invoice();
+        invoice.setCustomerId(10);
+        invoice.setPurchaseDate(LocalDate.of(2019, 10, 15));
+        invoiceDao.addInvoice(invoice);
+
+        invoice.setCustomerId(11);
+        invoiceDao.updateInvoice(invoice);
+
+        Invoice fromService = invoiceDao.getInvoice(invoice.getInvoiceId());
+        assertEquals(fromService, invoice);
     }
 
     @Test

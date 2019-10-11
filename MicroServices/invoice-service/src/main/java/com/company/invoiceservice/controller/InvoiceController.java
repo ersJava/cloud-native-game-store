@@ -16,7 +16,7 @@ import java.util.List;
 public class InvoiceController {
 
     @Autowired
-    ServiceLayer serviceLayer;
+    private ServiceLayer serviceLayer;
 
     // Create
     @PostMapping
@@ -40,6 +40,15 @@ public class InvoiceController {
     public InvoiceViewModel getInvoice(@PathVariable("id") Integer id) {
 
         return serviceLayer.findInvoice(id);
+    }
+
+    // Update - can add/update/delete InvoiceItems on InvoiceViewModel
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateInvoice (@PathVariable("id") Integer id, @RequestBody InvoiceViewModel invoice) {
+
+        serviceLayer.updateInvoice(invoice);
+
     }
 
     // Delete

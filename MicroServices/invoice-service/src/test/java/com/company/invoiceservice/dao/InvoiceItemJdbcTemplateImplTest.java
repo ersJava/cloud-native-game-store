@@ -87,7 +87,29 @@ public class InvoiceItemJdbcTemplateImplTest {
 
         List<InvoiceItem> list = invoiceItemDao.getAllItems();
         assertEquals(list.size(), 1);
+    }
 
+    @Test
+    public void updateInvoiceItem() {
+
+        Invoice invoice = new Invoice();
+        invoice.setCustomerId(10);
+        invoice.setPurchaseDate(LocalDate.of(2019, 10, 15));
+        invoiceDao.addInvoice(invoice);
+
+        InvoiceItem invoiceItem = new InvoiceItem();
+        invoiceItem.setInvoiceId(invoice.getInvoiceId());
+        invoiceItem.setInventoryId(40001);
+        invoiceItem.setQuantity(3);
+        invoiceItem.setUnitPrice(new BigDecimal("4.99"));
+        invoiceItemDao.addInvoiceItem(invoiceItem);
+
+        invoiceItem.setInventoryId(50001);
+
+        invoiceItemDao.updateItem(invoiceItem);
+
+        InvoiceItem fromService = invoiceItemDao.getInvoiceItem(invoiceItem.getInvoiceItemId());
+        assertEquals(fromService, invoiceItem);
     }
 
     @Test

@@ -17,6 +17,7 @@ public class InvoiceItem {
     private int quantity;
 
     @Digits(integer = 7, fraction = 2)
+    @NotNull(message = "Please supply a price for item")
     private BigDecimal unitPrice;
 
     public int getInvoiceItemId() {
