@@ -1,11 +1,10 @@
 package com.company.adminapiservice.util.feign;
 
+import com.company.adminapiservice.viewmodel.InvoiceItem;
 import com.company.adminapiservice.viewmodel.InvoiceViewModel;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -38,5 +37,10 @@ public interface InvoiceService {
     //Get Invoice(s) by customerId
     @RequestMapping(value = "/invoices/customer/{customerId}", method = RequestMethod.GET)
     List<InvoiceViewModel> getInvoicesByCustomerId (@PathVariable int customerId);
+
+    //uri: /invoices/inventory/{inventoryId}
+    //Get InvoiceItem(s) by inventoryId
+    @RequestMapping(value = "invoices/inventory/{inventoryId}")
+    public List<InvoiceItem> getInvoiceItemsByInventoryId(@PathVariable("inventoryId") Integer inventoryId);
 
 }

@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class ServiceLayer {
@@ -111,12 +112,20 @@ public class ServiceLayer {
 
         List<Invoice> invoiceList = invoiceDao.getAllInvoices();
 
+        if(invoiceList.size() == 0){
+            throw new NotFoundException("No invoices found, the Database is empty!!");
+        }
+
         List<InvoiceViewModel> ivmList = new ArrayList<>();
 
         for (Invoice i : invoiceList) {
+
             InvoiceViewModel ivm = buildInvoiceViewModel(i);
+
             ivmList.add(ivm);
         }
+
+
         return ivmList;
     }
 
@@ -139,7 +148,6 @@ public class ServiceLayer {
         });
 
     }
-
 
     public void removeInvoice(Integer id) {
 
@@ -166,9 +174,40 @@ public class ServiceLayer {
             throw new NotFoundException(String.format("No invoices in the system found with customer id %s", customerId));
         else
             for (Invoice i : list){
+
                 InvoiceViewModel ivm = buildInvoiceViewModel(i);
+
                 ivmList.add(ivm);
             }
             return ivmList;
+    }
+
+    public List<InvoiceItem> getInvoiceItemByInventoryId(int inventoryId){
+
+        //Getting all the invoices
+        List<InvoiceViewModel> allInvoices =  findAllInvoices();
+
+        List<List<InvoiceItem>> allInvoiceItemsList = new ArrayList<>();
+
+        List<InvoiceItem> invoiceItems = new ArrayList<>();
+
+
+        allInvoices.stream().forEach(invoiceViewModel -> allInvoiceItemsList.add(invoiceViewModel.getItemList()));
+
+        for (List<InvoiceItem> iiList: allInvoiceItemsList) {
+
+            for (InvoiceItem ii: iiList) {
+                invoiceItems.add(ii);
+            }
+        }
+
+        //Getting the invoice Items related to one InventoryId
+        List<InvoiceItem> invoiceItemsForInventoryId = invoiceItems.stream().filter(invoiceItem -> invoiceItem.getInventoryId() == inventoryId).collect(Collectors.toList());
+
+        if(invoiceItemsForInventoryId.size() == 0){
+            throw new NotFoundException("No Invoice Items for the specified inventoryId");
+        }
+
+        return invoiceItemsForInventoryId;
     }
 }
