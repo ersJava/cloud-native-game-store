@@ -182,7 +182,9 @@ public class ServiceLayer {
             return ivmList;
     }
 
+
     public List<InvoiceItemViewModel> getInvoiceItemByInventoryId(int inventoryId){
+
 
         //Getting all the invoices
         List<InvoiceViewModel> allInvoices =  findAllInvoices();
@@ -191,18 +193,20 @@ public class ServiceLayer {
 
         List<InvoiceItemViewModel> invoiceItems = new ArrayList<>();
 
-
         allInvoices.stream().forEach(invoiceViewModel -> allInvoiceItemsList.add(invoiceViewModel.getItemList()));
+
 
         for (List<InvoiceItemViewModel> iiList: allInvoiceItemsList) {
 
             for (InvoiceItemViewModel ii: iiList) {
+              
                 invoiceItems.add(ii);
             }
         }
 
         //Getting the invoice Items related to one InventoryId
         List<InvoiceItemViewModel> invoiceItemsForInventoryId = invoiceItems.stream().filter(invoiceItem -> invoiceItem.getInventoryId() == inventoryId).collect(Collectors.toList());
+
 
         if(invoiceItemsForInventoryId.size() == 0){
             throw new NotFoundException("No Invoice Items for the specified inventoryId");
