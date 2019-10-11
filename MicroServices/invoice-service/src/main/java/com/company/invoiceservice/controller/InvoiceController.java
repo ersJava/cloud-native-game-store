@@ -56,6 +56,5 @@ public class InvoiceController {
     public List<InvoiceViewModel> getInvoicesByCustomerId(@PathVariable("customerId") Integer customerId) {
 
         return serviceLayer.findInvoicesByCustomerId(customerId);
-
     }
 }
