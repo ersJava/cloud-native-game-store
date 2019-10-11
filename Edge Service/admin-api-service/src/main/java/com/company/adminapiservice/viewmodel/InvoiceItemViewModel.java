@@ -3,7 +3,7 @@ package com.company.adminapiservice.viewmodel;
 import java.math.BigDecimal;
 import java.util.Objects;
 
-public class InvoiceItem {
+public class InvoiceItemViewModel {
 
     private int invoiceItemId;
 
@@ -58,7 +58,7 @@ public class InvoiceItem {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        InvoiceItem that = (InvoiceItem) o;
+        InvoiceItemViewModel that = (InvoiceItemViewModel) o;
         return getInvoiceItemId() == that.getInvoiceItemId() &&
                 getInvoiceId() == that.getInvoiceId() &&
                 getInventoryId() == that.getInventoryId() &&
