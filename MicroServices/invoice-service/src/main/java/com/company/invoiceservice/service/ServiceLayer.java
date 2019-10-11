@@ -182,27 +182,31 @@ public class ServiceLayer {
             return ivmList;
     }
 
-    public List<InvoiceItem> getInvoiceItemByInventoryId(int inventoryId){
+
+    public List<InvoiceItemViewModel> getInvoiceItemByInventoryId(int inventoryId){
+
 
         //Getting all the invoices
         List<InvoiceViewModel> allInvoices =  findAllInvoices();
 
-        List<List<InvoiceItem>> allInvoiceItemsList = new ArrayList<>();
+        List<List<InvoiceItemViewModel>> allInvoiceItemsList = new ArrayList<>();
 
-        List<InvoiceItem> invoiceItems = new ArrayList<>();
-
+        List<InvoiceItemViewModel> invoiceItems = new ArrayList<>();
 
         allInvoices.stream().forEach(invoiceViewModel -> allInvoiceItemsList.add(invoiceViewModel.getItemList()));
 
-        for (List<InvoiceItem> iiList: allInvoiceItemsList) {
 
-            for (InvoiceItem ii: iiList) {
+        for (List<InvoiceItemViewModel> iiList: allInvoiceItemsList) {
+
+            for (InvoiceItemViewModel ii: iiList) {
+              
                 invoiceItems.add(ii);
             }
         }
 
         //Getting the invoice Items related to one InventoryId
-        List<InvoiceItem> invoiceItemsForInventoryId = invoiceItems.stream().filter(invoiceItem -> invoiceItem.getInventoryId() == inventoryId).collect(Collectors.toList());
+        List<InvoiceItemViewModel> invoiceItemsForInventoryId = invoiceItems.stream().filter(invoiceItem -> invoiceItem.getInventoryId() == inventoryId).collect(Collectors.toList());
+
 
         if(invoiceItemsForInventoryId.size() == 0){
             throw new NotFoundException("No Invoice Items for the specified inventoryId");
