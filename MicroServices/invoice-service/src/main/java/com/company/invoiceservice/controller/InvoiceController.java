@@ -1,6 +1,5 @@
 package com.company.invoiceservice.controller;
 
-import com.company.invoiceservice.model.InvoiceItem;
 import com.company.invoiceservice.service.ServiceLayer;
 import com.company.invoiceservice.viewmodel.InvoiceItemViewModel;
 import com.company.invoiceservice.viewmodel.InvoiceViewModel;
@@ -82,8 +81,7 @@ public class InvoiceController {
     //Get Invoice Items by inventoryId
     @GetMapping("/inventory/{inventoryId}")
     @ResponseStatus(HttpStatus.OK)
-    public List<InvoiceItem> getInvoiceItemsByInventoryId(@PathVariable("inventoryId") Integer inventoryId) {
-
+    public List<InvoiceItemViewModel> getInvoiceItemsByInventoryId(@PathVariable("inventoryId") Integer inventoryId) {
         return serviceLayer.getInvoiceItemByInventoryId(inventoryId);
     }
 }
