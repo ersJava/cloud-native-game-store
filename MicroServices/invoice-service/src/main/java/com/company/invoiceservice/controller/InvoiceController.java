@@ -1,5 +1,6 @@
 package com.company.invoiceservice.controller;
 
+import com.company.invoiceservice.model.InvoiceItem;
 import com.company.invoiceservice.service.ServiceLayer;
 import com.company.invoiceservice.viewmodel.InvoiceItemViewModel;
 import com.company.invoiceservice.viewmodel.InvoiceViewModel;
@@ -70,6 +71,7 @@ public class InvoiceController {
         return serviceLayer.findInvoicesByCustomerId(customerId);
     }
 
+<<<<<<< HEAD
     // Create Item - used only to build Invoice
     @PostMapping("/item")
     @ResponseStatus(HttpStatus.CREATED)
@@ -78,4 +80,13 @@ public class InvoiceController {
         return serviceLayer.saveItem(item);
     }
 
+=======
+    //Get Invoice Items by inventoryId
+    @GetMapping("/inventory/{inventoryId}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<InvoiceItem> getInvoiceItemsByInventoryId(@PathVariable("inventoryId") Integer inventoryId) {
+
+        return serviceLayer.getInvoiceItemByInventoryId(inventoryId);
+    }
+>>>>>>> 2244babbc8061fa4714dad7929dc2fb19bc90c7b
 }

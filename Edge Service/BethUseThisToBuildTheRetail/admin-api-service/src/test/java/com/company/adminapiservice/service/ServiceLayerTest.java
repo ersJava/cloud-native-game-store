@@ -218,8 +218,8 @@ public class ServiceLayerTest {
         List<InventoryViewModel> listInventoryProduct2 = new ArrayList<>();
         listInventoryProduct2.add(inventory4);
 
-        doReturn(listInventoryProduct1).when(inventoyService).getAllInventorysByProductId(1);
-        doReturn(listInventoryProduct2).when(inventoyService).getAllInventorysByProductId(2);
+        doReturn(listInventoryProduct1).when(inventoyService).getAllInventoriesByProductId(1);
+        doReturn(listInventoryProduct2).when(inventoyService).getAllInventoriesByProductId(2);
 
         //ToUpdate
         InventoryViewModel inventory3Updated = new InventoryViewModel();
