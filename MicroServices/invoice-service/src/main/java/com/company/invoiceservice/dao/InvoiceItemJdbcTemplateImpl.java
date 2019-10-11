@@ -22,6 +22,9 @@ public class InvoiceItemJdbcTemplateImpl implements InvoiceItemDao {
     private static final String SELECT_ALL_ITEMS_SQL =
             "select * from invoice_item";
 
+    private static final String UPDATE_ITEM_SQL =
+            "update invoice_item set invoice_id = ?, inventory_id = ?, quantity = ?, unit_price = ? where invoice_item_id = ?";
+
     private static final String DELETE_ITEM_SQL =
             "delete from invoice_item where invoice_item_id =?";
 
@@ -76,6 +79,18 @@ public class InvoiceItemJdbcTemplateImpl implements InvoiceItemDao {
     public List<InvoiceItem> getAllItems() {
 
         return jdbcTemplate.query(SELECT_ALL_ITEMS_SQL, this::mapRowToInvoiceItem);
+    }
+
+    @Override
+    public void updateItem(InvoiceItem invoiceItem) {
+
+        jdbcTemplate.update(UPDATE_ITEM_SQL,
+                invoiceItem.getInvoiceId(),
+                invoiceItem.getInventoryId(),
+                invoiceItem.getQuantity(),
+                invoiceItem.getUnitPrice(),
+                invoiceItem.getInvoiceItemId());
+
     }
 
     @Override

@@ -21,10 +21,10 @@ import static org.mockito.Mockito.*;
 
 public class ServiceLayerTest {
 
-    ServiceLayer servicelayer;
+    private ServiceLayer servicelayer;
 
-    InvoiceDao invoiceDao;
-    InvoiceItemDao invoiceItemDao;
+    private InvoiceDao invoiceDao;
+    private InvoiceItemDao invoiceItemDao;
 
     @Before
     public void setUp() throws Exception {
@@ -48,6 +48,12 @@ public class ServiceLayerTest {
         invoice1.setCustomerId(10);
         invoice1.setPurchaseDate(LocalDate.of(2019, 10, 15));
 
+        // update Mock data
+        Invoice updateInvoice = new Invoice();
+        updateInvoice.setInvoiceId(2);
+        updateInvoice.setCustomerId(20);
+        updateInvoice.setPurchaseDate(LocalDate.of(2019, 10, 15));
+
         // Mock save
         doReturn(invoice).when(invoiceDao).addInvoice(invoice1);
 
@@ -58,6 +64,10 @@ public class ServiceLayerTest {
 
         // Mock findById
         doReturn(invoice).when(invoiceDao).getInvoice(1);
+
+        // Mock update
+        doNothing().when(invoiceDao).updateInvoice(updateInvoice);
+        doReturn(updateInvoice).when(invoiceDao).getInvoice(2);
 
         // Mock delete
         doNothing().when(invoiceDao).deleteInvoice(55);
@@ -98,7 +108,12 @@ public class ServiceLayerTest {
         // Mock getItemByInvoiceId
         doReturn(list).when(invoiceItemDao).getItemsByInvoiceId(1);
 
-        // Mock get
+        // Mock data
+        InvoiceItem updateItem= new InvoiceItem();
+        updateItem.setInvoiceId(1);
+        updateItem.setInventoryId(40001);
+        updateItem.setQuantity(3);
+        updateItem.setUnitPrice(new BigDecimal("4.99"));
 
     }
 
@@ -143,6 +158,28 @@ public class ServiceLayerTest {
 
     }
 
+    @Test
+    public void updateInvoice() {
+
+        Invoice updateInvoice = new Invoice();
+        updateInvoice.setInvoiceId(2);
+        updateInvoice.setCustomerId(20);
+        updateInvoice.setPurchaseDate(LocalDate.of(2019, 10, 15));
+
+        InvoiceViewModel ivmUpdate = new InvoiceViewModel();
+        ivmUpdate.setInvoiceId(updateInvoice.getInvoiceId());
+        ivmUpdate.setCustomerId(updateInvoice.getCustomerId());
+        ivmUpdate.setPurchaseDate(updateInvoice.getPurchaseDate());
+
+        servicelayer.updateInvoice(ivmUpdate);
+
+        InvoiceViewModel afterUpdate = servicelayer.findInvoice(ivmUpdate.getInvoiceId());
+
+        assertEquals(afterUpdate, ivmUpdate);
+
+    }
+
+
     @Test(expected = NotFoundException.class)
     public void findInvoicesByCustomerId() {
 
@@ -151,6 +188,5 @@ public class ServiceLayerTest {
 
         list = servicelayer.findInvoicesByCustomerId(999);
         assertEquals(list.size(), 0);
-
     }
 }

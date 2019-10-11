@@ -23,6 +23,9 @@ public class InvoiceDaoJdbcTemplateImpl implements InvoiceDao {
     private static final String SELECT_ALL_INVOICES_SQL =
             "select * from invoice";
 
+    private static final String UPDATE_INVOICE_SQL =
+            "update invoice set customer_id = ?, purchase_date = ? where invoice_id = ?";
+
     private static final String DELETE_INVOICE_SQL =
             "delete from invoice where invoice_id = ?";
 
@@ -79,7 +82,15 @@ public class InvoiceDaoJdbcTemplateImpl implements InvoiceDao {
     public void deleteInvoice(int id) {
 
         jdbcTemplate.update(DELETE_INVOICE_SQL, id);
+    }
 
+    @Override
+    public void updateInvoice(Invoice invoice) {
+
+        jdbcTemplate.update(UPDATE_INVOICE_SQL,
+                invoice.getCustomerId(),
+                invoice.getPurchaseDate(),
+                invoice.getInvoiceId());
     }
 
     @Override

@@ -52,15 +52,14 @@ public class ServiceLayer {
         List<InvoiceItem> itemList = viewModel.getItemList();
 
         itemList.forEach(item->
-                        {
-                            item.setInvoiceId(viewModel.getInvoiceId());
-                            invoiceItemDao.addInvoiceItem(item);
-                        });
+        {
+            item.setInvoiceId(viewModel.getInvoiceId());
+            invoiceItemDao.addInvoiceItem(item);
+        });
         itemList = invoiceItemDao.getItemsByInvoiceId(invoice.getInvoiceId());
         viewModel.setItemList(itemList);
 
         return viewModel;
-
     }
 
     public InvoiceViewModel findInvoice(Integer id) {
@@ -85,6 +84,27 @@ public class ServiceLayer {
         }
         return ivmList;
     }
+
+    @Transactional
+    public void updateInvoice(InvoiceViewModel ivm) {
+
+        Invoice invoice = new Invoice();
+        invoice.setInvoiceId(ivm.getInvoiceId());
+        invoice.setCustomerId(ivm.getCustomerId());
+        invoice.setPurchaseDate(ivm.getPurchaseDate());
+        invoiceDao.updateInvoice(invoice);
+
+        List<InvoiceItem> itemList = invoiceItemDao.getItemsByInvoiceId(invoice.getInvoiceId());
+        itemList.forEach(item -> invoiceItemDao.deleteItem(item.getInvoiceItemId()));
+
+        List<InvoiceItem> items = ivm.getItemList();
+        items.forEach(i -> {
+            i.setInventoryId(ivm.getInvoiceId());
+            invoiceItemDao.addInvoiceItem(i);
+        });
+
+    }
+
 
     public void removeInvoice(Integer id) {
 
