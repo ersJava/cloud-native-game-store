@@ -19,17 +19,21 @@ public interface InventoyService {
 
     //Get all the inventory registers
     @RequestMapping(value = "/inventory", method = RequestMethod.GET)
-    List<InventoryViewModel> getAllInventorys();
+    List<InventoryViewModel> getAllInventories();
 
     //Update an Inventory Registry
-    @RequestMapping(value = "/inventory", method = RequestMethod.PUT)
-    void updateInventory(@RequestBody InventoryViewModel ivm);
+    @RequestMapping(value = "/inventory/{id}", method = RequestMethod.PUT)
+    void updateInventory(@PathVariable("id") Integer id, @RequestBody InventoryViewModel ivm);
 
     //uri: /inventory/{id}
     //Get Inventory for the inventoryId
     @RequestMapping(value = "/inventory/{id}", method = RequestMethod.GET)
-    InventoryViewModel readInventory(@PathVariable int id);
+    InventoryViewModel getInventory(@PathVariable int id);
 
     @RequestMapping(value = "/inventory/{id}", method = RequestMethod.DELETE)
     void deleteInventory(@PathVariable int id);
+
+    //uri: /inventory/byProductId/{id}
+    @RequestMapping(value = "/inventory/byProductId/{productId}", method = RequestMethod.GET)
+    List<InventoryViewModel> getAllInventoriesByProductId(@PathVariable int productId);
 }

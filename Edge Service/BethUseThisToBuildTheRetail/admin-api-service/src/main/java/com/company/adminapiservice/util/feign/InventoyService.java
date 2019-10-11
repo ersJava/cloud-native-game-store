@@ -35,5 +35,5 @@ public interface InventoyService {
 
     //uri: /inventory/byProductId/{id}
     @RequestMapping(value = "/inventory/byProductId/{id}", method = RequestMethod.GET)
-    List<InventoryViewModel> getAllInventorysByProductId(@PathVariable int id);
+    List<InventoryViewModel> getAllInventoriesByProductId(@PathVariable int id);
 }

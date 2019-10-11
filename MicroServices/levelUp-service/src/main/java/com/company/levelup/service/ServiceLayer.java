@@ -50,6 +50,10 @@ public class ServiceLayer {
 
         List<LevelUp> levelUpList = dao.getAllLevelUps();
 
+        if(levelUpList.size() == 0){
+            throw new NotFoundException("Database is Empty");
+        }
+
         List<LevelUpViewModel> lvmList = new ArrayList<>();
 
         for (LevelUp l : levelUpList) {
