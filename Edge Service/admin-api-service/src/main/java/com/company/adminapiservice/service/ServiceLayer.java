@@ -16,17 +16,17 @@ import java.util.stream.Collectors;
 public class ServiceLayer {
 
     CustomerService customerService;
-    InventoyService inventoyService;
+    InventoryService inventoryService;
     InvoiceService invoiceService;
     LevelUpService levelUpService;
     ProductService productService;
 
     @Autowired
-    public ServiceLayer(CustomerService customerService, InventoyService inventoyService, InvoiceService invoiceService,
+    public ServiceLayer(CustomerService customerService, InventoryService inventoryService, InvoiceService invoiceService,
                         LevelUpService levelUpService, ProductService productService){
 
         this.customerService = customerService;
-        this.inventoyService = inventoyService;
+        this.inventoryService = inventoryService;
         this.invoiceService = invoiceService;
         this.levelUpService = levelUpService;
         this.productService = productService;
@@ -116,14 +116,14 @@ public class ServiceLayer {
             throw new ProductNotFoundException("Creation of Inventory not Allowed, No Product found in the database for id #" +  ivm.getProductId()+ " !");
         }
 
-        return inventoyService.createInventory(ivm);
+        return inventoryService.createInventory(ivm);
     }
 
     //Get all inventories
     public List<InventoryViewModel> getAllInventories(){
 
         try{
-            return inventoyService.getAllInventories();
+            return inventoryService.getAllInventories();
         }catch (RuntimeException e){
             throw new InventoryNotFoundException("The database is empty!!! No Inventory found in the Database");
         }
@@ -134,7 +134,7 @@ public class ServiceLayer {
     public void updateInventory(int id, InventoryViewModel ivm){
 
         try{
-            inventoyService.updateInventory(id,ivm);
+            inventoryService.updateInventory(id,ivm);
         }catch (RuntimeException e){
             throw new InventoryNotFoundException("Impossible Update, No Inventory found in the Database for id " + id + "!");
         }
@@ -145,7 +145,7 @@ public class ServiceLayer {
     public InventoryViewModel getInventory(int id){
 
         try{
-            return inventoyService.getInventory(id);
+            return inventoryService.getInventory(id);
         }catch (RuntimeException e){
             throw new InventoryNotFoundException("No Inventory found in the Database for id " + id + "!");
         }
@@ -153,7 +153,7 @@ public class ServiceLayer {
 
     //Delete Inventory
     public void deleteInventory(int id){
-        inventoyService.deleteInventory(id);
+        inventoryService.deleteInventory(id);
     }
 
     //uri: /inventory/byProductId/{id}
@@ -161,7 +161,7 @@ public class ServiceLayer {
     public List<InventoryViewModel> getAllInventoriesByProductId(int productId){
 
         try{
-            return inventoyService.getAllInventoriesByProductId(productId);
+            return inventoryService.getAllInventoriesByProductId(productId);
         }catch (RuntimeException e){
             throw new InventoryNotFoundException("No inventories found for productId " + productId + " !");
         }
@@ -329,9 +329,11 @@ public class ServiceLayer {
     //Delete a Product
     public void deleteProduct(int id){
 
+        int impossibleDelete = 0;
+
         try{
             //Get all the Inventory registers related to the product
-            List<InventoryViewModel> inventoryListForProduct = inventoyService.getAllInventoriesByProductId(id);
+            List<InventoryViewModel> inventoryListForProduct = inventoryService.getAllInventoriesByProductId(id);
 
             //List that stores the Inventories with a quantity of 0
             List<InventoryViewModel> emptyInventoryForProduct;
@@ -356,17 +358,22 @@ public class ServiceLayer {
                 }
 
                 if(count != inventoryListForProduct.size()){
-                    throw new DeleteNotAllowedException("Impossible Deletion, there is InvoiceItems related to the Product");
+                    impossibleDelete++;
                 }else{
                     productService.deleteProduct(id);
                 }
 
             }else{
-                throw new DeleteNotAllowedException("Impossible Deletion, there is Products still in inventory");
+                impossibleDelete++;
             }
 
         }catch (RuntimeException e){
             productService.deleteProduct(id);
+        }
+
+
+        if(impossibleDelete != 0){
+            throw new DeleteNotAllowedException("Impossible Deletion, there is Products still in inventory");
         }
 
     }
