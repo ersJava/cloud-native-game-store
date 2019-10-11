@@ -1,5 +1,6 @@
 package com.company.invoiceservice.controller;
 
+import com.company.invoiceservice.model.InvoiceItem;
 import com.company.invoiceservice.service.ServiceLayer;
 import com.company.invoiceservice.viewmodel.InvoiceViewModel;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,5 +66,13 @@ public class InvoiceController {
     public List<InvoiceViewModel> getInvoicesByCustomerId(@PathVariable("customerId") Integer customerId) {
 
         return serviceLayer.findInvoicesByCustomerId(customerId);
+    }
+
+    //Get Invoice Items by inventoryId
+    @GetMapping("/inventory/{inventoryId}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<InvoiceItem> getInvoiceItemsByInventoryId(@PathVariable("inventoryId") Integer inventoryId) {
+
+        return serviceLayer.getInvoiceItemByInventoryId(inventoryId);
     }
 }
