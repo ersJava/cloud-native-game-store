@@ -34,6 +34,6 @@ public interface InventoyService {
     void deleteInventory(@PathVariable int id);
 
     //uri: /inventory/byProductId/{id}
-    @RequestMapping(value = "/inventory/byProductId/{productId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/inventory/product/{productId}", method = RequestMethod.GET)
     List<InventoryViewModel> getAllInventoriesByProductId(@PathVariable int productId);
 }

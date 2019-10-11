@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Component
@@ -73,14 +75,20 @@ public class ServiceLayer {
     //Delete a Customer
     public void deleteCustomer(int id){
 
-        int levelUpAccountId = levelUpService.getLevelUpAccountByCustomerId(id).getLevelUpId();
+        //The deletion is going to be processed if the Customer does not have any related invoices
+        try{
+            invoiceService.getInvoicesByCustomerId(id);
+            throw new DeleteNotAllowedException("Impossible Delete, there is Invoice registers associated with this Customer");
+        }catch (RuntimeException e){
 
-        //Delete the levelUp Account
-        levelUpService.deleteLevelUpAccount(levelUpAccountId);
+            try{
+                levelUpService.getLevelUpAccountByCustomerId(id);
+                throw new DeleteNotAllowedException("Impossible Deletion, there is LevelUp Account associated with this Customer");
 
-        //Delete the Customer
-        customerService.deleteCustomer(id);
-
+            }catch (RuntimeException f){
+                customerService.deleteCustomer(id);
+            }
+        }
     }
 
     //uri: /customer/findByLastName/{last_name}
@@ -318,9 +326,40 @@ public class ServiceLayer {
         }
     }
 
-    //Delete a Product ASK WHAT TO DO
+    //Delete a Product
     public void deleteProduct(int id){
-        productService.deleteProduct(id);
+
+        try{
+            List<InventoryViewModel> inventoryListForProduct = inventoyService.getAllInventoriesByProductId(id);
+
+            List<Integer> idOfInventories;
+
+            List<InventoryViewModel> emptyInventoryForProduct;
+
+            emptyInventoryForProduct = inventoryListForProduct.stream().filter(inventoryViewModel -> inventoryViewModel.getQuantity() == 0).collect(Collectors.toList());
+
+            //Get all the id(s) of the inventories related to the product
+            inventoryListForProduct.stream().forEach(inventoryViewModel -> idOfInventories.add(inventoryViewModel.getInventoryId()));
+
+            if(emptyInventoryForProduct.size() == inventoryListForProduct.size()){
+                try{
+                    for (int inventoryId:idOfInventories) {
+                        invoiceService.
+                    }
+
+
+                }catch (RuntimeException f){
+
+                }
+
+            }else{
+                throw new DeleteNotAllowedException("Impossible Deletion, there is Products still in inventory");
+            }
+
+        }catch (RuntimeException e){
+            productService.deleteProduct(id);
+        }
+
     }
 
 }
