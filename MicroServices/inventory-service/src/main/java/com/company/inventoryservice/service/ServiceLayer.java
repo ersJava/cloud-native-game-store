@@ -48,6 +48,10 @@ public class ServiceLayer {
 
         List<Inventory> inventoryList = dao.getAllInventories();
 
+        if(inventoryList.size() == 0){
+            throw new NotFoundException("Database empty, No inventories found");
+        }
+
         List<InventoryViewModel> lvmList = new ArrayList<>();
 
         for (Inventory i : inventoryList) {
@@ -70,6 +74,9 @@ public class ServiceLayer {
 
     @Transactional
     public void updateInventory(InventoryViewModel ivm) {
+
+        //Making sure that the Inventory Exist
+        findInventory(ivm.getInventoryId());
 
         Inventory inventory = new Inventory();
         inventory.setInventoryId(ivm.getInventoryId());

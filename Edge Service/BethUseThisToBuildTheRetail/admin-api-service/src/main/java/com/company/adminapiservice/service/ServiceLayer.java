@@ -65,7 +65,7 @@ public class ServiceLayer {
             BigDecimal unitPrice = BigDecimal.valueOf(Double.valueOf(productService.getProduct(productId).getListPrice()));
 
             //Reading the Product in Stock from the InventoryService
-            List<InventoryViewModel> inventoryList = inventoyService.getAllInventorysByProductId(product.getProductId());
+            List<InventoryViewModel> inventoryList = inventoyService.getAllInventoriesByProductId(product.getProductId());
 
             inventoryList = orderInventoryListByQuantity(inventoryList);
 
