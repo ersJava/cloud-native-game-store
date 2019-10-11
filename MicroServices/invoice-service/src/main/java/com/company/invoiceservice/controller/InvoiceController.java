@@ -1,6 +1,7 @@
 package com.company.invoiceservice.controller;
 
 import com.company.invoiceservice.service.ServiceLayer;
+import com.company.invoiceservice.viewmodel.InvoiceItemViewModel;
 import com.company.invoiceservice.viewmodel.InvoiceViewModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -47,8 +48,10 @@ public class InvoiceController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateInvoice (@PathVariable("id") Integer id, @RequestBody InvoiceViewModel invoice) {
 
+        if (!id.equals(invoice.getInvoiceId())) {
+            throw new IllegalArgumentException(String.format("Id %s in the PathVariable does not match the Id %s in the RequestBody ", id, invoice.getInvoiceId()));
+        }
         serviceLayer.updateInvoice(invoice);
-
     }
 
     // Delete
@@ -66,4 +69,13 @@ public class InvoiceController {
 
         return serviceLayer.findInvoicesByCustomerId(customerId);
     }
+
+    // Create Item - used only to build Invoice
+    @PostMapping("/item")
+    @ResponseStatus(HttpStatus.CREATED)
+    public InvoiceItemViewModel createItem(@RequestBody @Valid InvoiceItemViewModel item) {
+
+        return serviceLayer.saveItem(item);
+    }
+
 }

@@ -7,6 +7,7 @@ import com.company.invoiceservice.dao.InvoiceItemJdbcTemplateImpl;
 import com.company.invoiceservice.exception.NotFoundException;
 import com.company.invoiceservice.model.Invoice;
 import com.company.invoiceservice.model.InvoiceItem;
+import com.company.invoiceservice.viewmodel.InvoiceItemViewModel;
 import com.company.invoiceservice.viewmodel.InvoiceViewModel;
 import org.junit.Before;
 import org.junit.Test;
@@ -123,13 +124,13 @@ public class ServiceLayerTest {
         InvoiceViewModel ivm = new InvoiceViewModel();
         ivm.setCustomerId(10);
         ivm.setPurchaseDate(LocalDate.of(2019, 10, 15));
-        
-        InvoiceItem item = new InvoiceItem();
+
+        InvoiceItemViewModel item = new InvoiceItemViewModel();
         item.setInventoryId(40001);
         item.setQuantity(3);
         item.setUnitPrice(new BigDecimal("4.99"));
 
-        List<InvoiceItem> list = new ArrayList<>();
+        List<InvoiceItemViewModel> list = new ArrayList<>();
         list.add(item);
 
         ivm.setItemList(list);
@@ -178,7 +179,6 @@ public class ServiceLayerTest {
         assertEquals(afterUpdate, ivmUpdate);
 
     }
-
 
     @Test(expected = NotFoundException.class)
     public void findInvoicesByCustomerId() {

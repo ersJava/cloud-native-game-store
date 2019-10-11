@@ -5,6 +5,7 @@ import com.company.invoiceservice.dao.InvoiceItemDao;
 import com.company.invoiceservice.exception.NotFoundException;
 import com.company.invoiceservice.model.Invoice;
 import com.company.invoiceservice.model.InvoiceItem;
+import com.company.invoiceservice.viewmodel.InvoiceItemViewModel;
 import com.company.invoiceservice.viewmodel.InvoiceViewModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -26,16 +27,50 @@ public class ServiceLayer {
         this.invoiceItemDao = invoiceItemDao;
     }
 
+    // * * * * * * Item * * * * * * *
+    @Transactional
+    public InvoiceItemViewModel saveItem(InvoiceItemViewModel itemViewModel) {
+
+        InvoiceItem invoiceItem = new InvoiceItem();
+        invoiceItem.setInvoiceId(itemViewModel.getInvoiceId());
+        invoiceItem.setInventoryId(itemViewModel.getInventoryId());
+        invoiceItem.setQuantity(itemViewModel.getQuantity());
+        invoiceItem.setUnitPrice(itemViewModel.getUnitPrice());
+        invoiceItem = invoiceItemDao.addInvoiceItem(invoiceItem);
+        itemViewModel.setInvoiceItemId(invoiceItem.getInvoiceItemId());
+
+        return itemViewModel;
+    }
+
+    private InvoiceItemViewModel buildItemViewModel(InvoiceItem item) {
+
+        InvoiceItemViewModel ivm = new InvoiceItemViewModel();
+        ivm.setInvoiceItemId(item.getInvoiceItemId());
+        ivm.setInvoiceId(item.getInvoiceId());
+        ivm.setInventoryId(item.getInventoryId());
+        ivm.setQuantity(item.getQuantity());
+        ivm.setUnitPrice(item.getUnitPrice());
+
+        return ivm;
+    }
+
     // * * * * * * Invoice * * * * * * *
-    private InvoiceViewModel buildViewModel(Invoice invoice) {
+    private InvoiceViewModel buildInvoiceViewModel(Invoice invoice) {
 
         List<InvoiceItem> itemList = invoiceItemDao.getItemsByInvoiceId(invoice.getInvoiceId());
+
+        List<InvoiceItemViewModel> ivmList = new ArrayList<>();
+
+        for(InvoiceItem i : itemList){
+            InvoiceItemViewModel ivm = buildItemViewModel(i);
+            ivmList.add(ivm);
+        }
 
         InvoiceViewModel viewModel = new InvoiceViewModel();
         viewModel.setInvoiceId(invoice.getInvoiceId());
         viewModel.setCustomerId(invoice.getCustomerId());
         viewModel.setPurchaseDate(invoice.getPurchaseDate());
-        viewModel.setItemList(itemList);
+        viewModel.setItemList(ivmList);
 
         return viewModel;
     }
@@ -49,14 +84,14 @@ public class ServiceLayer {
         invoice = invoiceDao.addInvoice(invoice);
         viewModel.setInvoiceId(invoice.getInvoiceId());
 
-        List<InvoiceItem> itemList = viewModel.getItemList();
+        List<InvoiceItemViewModel> itemList = viewModel.getItemList();
 
         itemList.forEach(item->
         {
             item.setInvoiceId(viewModel.getInvoiceId());
-            invoiceItemDao.addInvoiceItem(item);
+            saveItem(item);
         });
-        itemList = invoiceItemDao.getItemsByInvoiceId(invoice.getInvoiceId());
+
         viewModel.setItemList(itemList);
 
         return viewModel;
@@ -69,7 +104,7 @@ public class ServiceLayer {
         if(invoice == null)
             throw new NotFoundException(String.format("Invoice could not be retrieved for id %s", id));
         else
-            return buildViewModel(invoice);
+            return buildInvoiceViewModel(invoice);
     }
 
     public List<InvoiceViewModel> findAllInvoices() {
@@ -79,7 +114,7 @@ public class ServiceLayer {
         List<InvoiceViewModel> ivmList = new ArrayList<>();
 
         for (Invoice i : invoiceList) {
-            InvoiceViewModel ivm = buildViewModel(i);
+            InvoiceViewModel ivm = buildInvoiceViewModel(i);
             ivmList.add(ivm);
         }
         return ivmList;
@@ -97,10 +132,10 @@ public class ServiceLayer {
         List<InvoiceItem> itemList = invoiceItemDao.getItemsByInvoiceId(invoice.getInvoiceId());
         itemList.forEach(item -> invoiceItemDao.deleteItem(item.getInvoiceItemId()));
 
-        List<InvoiceItem> items = ivm.getItemList();
+        List<InvoiceItemViewModel> items = ivm.getItemList();
         items.forEach(i -> {
-            i.setInventoryId(ivm.getInvoiceId());
-            invoiceItemDao.addInvoiceItem(i);
+            i.setInvoiceId(ivm.getInvoiceId());
+            saveItem(i);
         });
 
     }
@@ -131,7 +166,7 @@ public class ServiceLayer {
             throw new NotFoundException(String.format("No invoices in the system found with customer id %s", customerId));
         else
             for (Invoice i : list){
-                InvoiceViewModel ivm = buildViewModel(i);
+                InvoiceViewModel ivm = buildInvoiceViewModel(i);
                 ivmList.add(ivm);
             }
             return ivmList;

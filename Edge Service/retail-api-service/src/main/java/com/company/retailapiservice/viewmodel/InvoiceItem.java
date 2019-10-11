@@ -1,4 +1,4 @@
-package com.company.invoiceservice.model;
+package com.company.retailapiservice.viewmodel;
 
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;

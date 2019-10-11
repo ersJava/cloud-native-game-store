@@ -1,11 +1,10 @@
-package com.company.invoiceservice.model;
+package com.company.retailapiservice.viewmodel;
 
-import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Objects;
 
-public class InvoiceItem {
+public class InvoiceItemViewModel {
 
     private int invoiceItemId;
     private int invoiceId;
@@ -16,8 +15,6 @@ public class InvoiceItem {
     @NotNull(message = "Please supply a quantity for item")
     private int quantity;
 
-//    @NotNull(message = "Please supply a price for item")
-    @Digits(integer = 7, fraction = 2)
     private BigDecimal unitPrice;
 
     public int getInvoiceItemId() {
@@ -64,12 +61,12 @@ public class InvoiceItem {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        InvoiceItem that = (InvoiceItem) o;
+        InvoiceItemViewModel that = (InvoiceItemViewModel) o;
         return getInvoiceItemId() == that.getInvoiceItemId() &&
                 getInvoiceId() == that.getInvoiceId() &&
                 getInventoryId() == that.getInventoryId() &&
                 getQuantity() == that.getQuantity() &&
-                getUnitPrice().equals(that.getUnitPrice());
+                Objects.equals(getUnitPrice(), that.getUnitPrice());
     }
 
     @Override
