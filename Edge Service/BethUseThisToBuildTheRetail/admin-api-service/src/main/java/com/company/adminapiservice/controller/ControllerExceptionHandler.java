@@ -133,5 +133,14 @@ public class ControllerExceptionHandler {
         return responseEntity;
     }
 
+    @ExceptionHandler(value = {UpdateNotAllowedException.class})
+    @ResponseStatus( HttpStatus.FORBIDDEN)
+    public ResponseEntity<VndErrors> updateNotAllowedException(UpdateNotAllowedException e, WebRequest request){
+
+        VndErrors error = new VndErrors(request.toString(), e.getMessage());
+
+        ResponseEntity<VndErrors> responseEntity = new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+        return responseEntity;
+    }
 
 }

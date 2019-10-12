@@ -118,6 +118,34 @@ public class ServiceLayerTest {
         invoice.setInvoiceItems(invoiceItems);
 
         doReturn(invoice).when(invoiceService).createInvoice(invoiceC);
+        doReturn(invoice).when(invoiceService).getInvoice(1);
+
+        //Mock for getAllInvoices
+        InvoiceViewModel invoice25 = new InvoiceViewModel();
+
+        invoice25.setInvoiceId(25);
+        invoice25.setPurchaseDate(LocalDate.of(2019,12,13));
+        invoice25.setCustomerId(2);
+
+        InvoiceViewModel invoice26 = new InvoiceViewModel();
+
+        invoice26.setInvoiceId(26);
+        invoice26.setPurchaseDate(LocalDate.of(2019,12,13));
+        invoice26.setCustomerId(2);
+
+        List<InvoiceViewModel> allInvoices = new ArrayList<>();
+        allInvoices.add(invoice);
+        allInvoices.add(invoice25);
+        allInvoices.add(invoice26);
+
+        doReturn(allInvoices).when(invoiceService).getAllInvoices();
+
+        //Mock for getInvoicesByCustomerId
+        List<InvoiceViewModel> invoicesForCustomer26 = new ArrayList<>();
+        invoicesForCustomer26.add(invoice25);
+        invoicesForCustomer26.add(invoice26);
+
+        doReturn(invoicesForCustomer26).when(invoiceService).getInvoicesByCustomerId(2);
     }
 
     public void setLevelUpServiceMock(){
@@ -246,7 +274,7 @@ public class ServiceLayerTest {
     }
 
     @Test
-    public void processOrder() {
+    public void processOrderTest() {
         ProductToBuyViewModel product1 = new ProductToBuyViewModel();
         product1.setProductId(1);
         product1.setQuantity(2);
@@ -274,7 +302,66 @@ public class ServiceLayerTest {
     }
 
     @Test
-    public void filteredProductsToBuy(){
+    public void getInvoiceTest(){
+        //Setting up the InvoiceItems list for the Object to be returned
+        InvoiceItemViewModel invoiceItem1 = new InvoiceItemViewModel();
+        invoiceItem1.setInvoiceItemId(1);
+        invoiceItem1.setInvoiceId(1);
+        invoiceItem1.setInventoryId(3);
+        invoiceItem1.setQuantity(3);
+        invoiceItem1.setUnitPrice(new BigDecimal("200.23"));
+
+        InvoiceItemViewModel invoiceItem2 = new InvoiceItemViewModel();
+        invoiceItem2.setInvoiceItemId(2);
+        invoiceItem2.setInvoiceId(1);
+        invoiceItem2.setInventoryId(1);
+        invoiceItem2.setQuantity(2);
+        invoiceItem2.setUnitPrice(new BigDecimal("200.23"));
+
+        InvoiceItemViewModel invoiceItem3 = new InvoiceItemViewModel();
+        invoiceItem3.setInvoiceItemId(3);
+        invoiceItem3.setInvoiceId(1);
+        invoiceItem3.setInventoryId(4);
+        invoiceItem3.setQuantity(2);
+        invoiceItem3.setUnitPrice(new BigDecimal("300.54"));
+
+        List<InvoiceItemViewModel> invoiceItems = new ArrayList<>();
+
+        invoiceItems.add(invoiceItem1);
+        invoiceItems.add(invoiceItem2);
+        invoiceItems.add(invoiceItem3);
+
+        //Creating the Expected Invoice
+        InvoiceViewModel invoice = new InvoiceViewModel();
+
+        invoice.setInvoiceId(1);
+        invoice.setPurchaseDate(LocalDate.of(2019,12,13));
+        invoice.setCustomerId(1);
+        invoice.setInvoiceItems(invoiceItems);
+
+        //Reading the Invoice from the Service
+        InvoiceViewModel fromService = serviceLayer.getInvoice(invoice.getInvoiceId());
+
+        assertEquals(invoice, fromService);
+
+    }
+
+    @Test
+    public void getAllInvoicesTest(){
+        List<InvoiceViewModel> allInvoices = serviceLayer.getAllInvoices();
+
+        assertEquals(allInvoices.size(),3);
+    }
+
+    @Test
+    public void getInvoicesByCustomerIdTest(){
+        List<InvoiceViewModel> invoicesForCustomer26 = serviceLayer.getInvoicesByCustomerId(2);
+
+        assertEquals(invoicesForCustomer26.size(),2);
+    }
+
+    @Test
+    public void filteredProductsToBuyTest(){
         ProductToBuyViewModel product1 = new ProductToBuyViewModel();
         product1.setProductId(1);
         product1.setQuantity(3);
@@ -301,11 +388,11 @@ public class ServiceLayerTest {
 
         List<ProductToBuyViewModel> filteredProductList = serviceLayer.filterProductsToBuyList(productList);
 
-        System.out.println("Hello");
+        assertEquals(filteredProductList.size(),2);
     }
 
     @Test
-    public void orderInventoryListByQuantity() {
+    public void orderInventoryListByQuantityTest() {
         InventoryViewModel ivm1 = new InventoryViewModel();
 
         ivm1.setInventoryId(1);
@@ -350,11 +437,15 @@ public class ServiceLayerTest {
 
         List<InventoryViewModel> ordered3 = serviceLayer.orderInventoryListByQuantity(thirdList);
 
+        assertEquals(ordered3.size(),3);
+
         List<InventoryViewModel> ordered2 = serviceLayer.orderInventoryListByQuantity(anotherList);
+
+        assertEquals(ordered2.size(),3);
 
         List<InventoryViewModel> ordered = serviceLayer.orderInventoryListByQuantity(inventoryViewModelList);
 
-        System.out.println("This");
+        assertEquals(ordered.size(),4);
 
     }
 }

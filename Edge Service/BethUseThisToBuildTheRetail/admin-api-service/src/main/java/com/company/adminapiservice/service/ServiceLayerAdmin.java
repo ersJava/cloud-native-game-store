@@ -89,8 +89,8 @@ public class ServiceLayerAdmin {
     }
 
     //uri: /customer/{id}
-    //Get a Customer for Id
-    public FrontEndCustomerViewModel getCustomer(int id){
+    //Get a FrontEndCustomer for Id
+    public FrontEndCustomerViewModel getCustomerFrontEnd(int id){
 
         FrontEndCustomerViewModel fecvm = new FrontEndCustomerViewModel();
 
@@ -105,6 +105,7 @@ public class ServiceLayerAdmin {
 
         try{
             fecvm.setLevelUpAccount(levelUpService.getLevelUpAccountByCustomerId(cvm.getCustomerId()));
+            fecvm.setCreationDate(fecvm.getLevelUpAccount().getMemberDate());
         }catch (RuntimeException e){
             fecvm.setLevelUpAccount(null);
         }
@@ -112,7 +113,8 @@ public class ServiceLayerAdmin {
         return fecvm;
     }
 
-    public CustomerViewModel getCustomerViewModel(int id){
+    //Get CustomerViewModel
+    public CustomerViewModel getCustomer(int id){
         try{
             return customerService.getCustomer(id);
         }catch (RuntimeException e){
@@ -207,7 +209,15 @@ public class ServiceLayerAdmin {
 
     //Delete Inventory
     public void deleteInventory(int id){
-        inventoryService.deleteInventory(id);
+
+        //Check if there is no InvoiceItems related to the Inventory register
+        List<InvoiceItemViewModel> invoiceItemsForInventory = invoiceService.getInvoiceItemsByInventoryId(id);
+
+        if(invoiceItemsForInventory.size() == 0){
+            inventoryService.deleteInventory(id);
+        }else{
+            throw new DeleteNotAllowedException("Impossible Deletion, this Inventory register have associated InvoiceItems");
+        }
     }
 
     //uri: /inventory/byProductId/{id}
@@ -218,62 +228,6 @@ public class ServiceLayerAdmin {
             return inventoryService.getAllInventoriesByProductId(productId);
         }catch (RuntimeException e){
             throw new InventoryNotFoundException("No inventories found for productId " + productId + " !");
-        }
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////INVOICE METHODS///////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    //uri: /invoices
-    //Create an Invoice
-    @Transactional
-    public InvoiceViewModel createInvoice(InvoiceViewModel ivm){
-
-        //Making sure that the Customer specified exist
-        try{
-            customerService.getCustomer(ivm.getCustomerId());
-        }catch (RuntimeException e){
-            throw new CustomerNotFoundException("Creation of Invoice not Allowed, No Customer found in the database for id #" +  ivm.getCustomerId()+ " !");
-        }
-
-        return invoiceService.createInvoice(ivm);
-    }
-
-    //Get all Invoice(s)
-    public List<InvoiceViewModel> getAllInvoices(){
-
-        try{
-            return invoiceService.getAllInvoices();
-        }catch (RuntimeException e){
-            throw new InvoiceNotFoundException("The database is empty!!! No Invoice(s) found in the Database");
-        }
-    }
-
-    //uri: /invoices/{id}
-    //Get an Invoice for the Id
-    public InvoiceViewModel getInvoice(int id){
-
-        try{
-            return invoiceService.getInvoice(id);
-        }catch (RuntimeException e){
-            throw new InvoiceNotFoundException("No Invoice found in the Database for id " + id + "!");
-        }
-    }
-
-    //Delete an Invoice
-    public void deleteInvoice(int id){
-        invoiceService.deleteInvoice(id);
-    }
-
-
-    //uri: /invoices/customer/{customerId}
-    public List<InvoiceViewModel> getInvoicesByCustomerId(int customerId){
-
-        try{
-            return invoiceService.getInvoicesByCustomerId(customerId);
-        }catch (RuntimeException e){
-            throw new InvoiceNotFoundException("No invoices in the system found with customer id " + customerId);
         }
     }
 
