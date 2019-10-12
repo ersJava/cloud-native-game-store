@@ -14,10 +14,6 @@ public class CustomerViewModel {
     private String email;
     private String phone;
 
-    private String creationDate;
-
-    private LevelUpViewModel levelUpAccount;
-
     //getters and setters
     public int getCustomerId() {
         return customerId;
@@ -83,22 +79,6 @@ public class CustomerViewModel {
         this.phone = phone;
     }
 
-    public String getCreationDate() {
-        return creationDate;
-    }
-
-    public void setCreationDate(String creationDate) {
-        this.creationDate = creationDate;
-    }
-
-    public LevelUpViewModel getLevelUpAccount() {
-        return levelUpAccount;
-    }
-
-    public void setLevelUpAccount(LevelUpViewModel levelUpAccount) {
-        this.levelUpAccount = levelUpAccount;
-    }
-
     //equals and hashcode
     @Override
     public boolean equals(Object o) {
@@ -112,13 +92,11 @@ public class CustomerViewModel {
                 getCity().equals(that.getCity()) &&
                 getZip().equals(that.getZip()) &&
                 getEmail().equals(that.getEmail()) &&
-                getPhone().equals(that.getPhone()) &&
-                getCreationDate().equals(that.getCreationDate()) &&
-                getLevelUpAccount().equals(that.getLevelUpAccount());
+                getPhone().equals(that.getPhone());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getCustomerId(), getFirstName(), getLastName(), getStreet(), getCity(), getZip(), getEmail(), getPhone(), getCreationDate(), getLevelUpAccount());
+        return Objects.hash(getCustomerId(), getFirstName(), getLastName(), getStreet(), getCity(), getZip(), getEmail(), getPhone());
     }
 }

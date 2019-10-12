@@ -1,8 +1,7 @@
-package com.company.customerservice.controller;
+package com.company.adminapiservice.controller;
 
-import com.company.customerservice.exception.CustomerNotFoundException;
+import com.company.adminapiservice.exception.*;
 import com.fasterxml.jackson.core.JsonParseException;
-
 import org.springframework.hateoas.VndErrors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -71,9 +70,62 @@ public class ControllerExceptionHandler {
 
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     @ExceptionHandler(value = {CustomerNotFoundException.class})
     @ResponseStatus( HttpStatus.NOT_FOUND)
     public ResponseEntity<VndErrors> customerNotFoundException(CustomerNotFoundException e, WebRequest request){
+
+        VndErrors error = new VndErrors(request.toString(), e.getMessage());
+
+        ResponseEntity<VndErrors> responseEntity = new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        return responseEntity;
+    }
+
+    @ExceptionHandler(value = {DeleteNotAllowedException.class})
+    @ResponseStatus( HttpStatus.FORBIDDEN)
+    public ResponseEntity<VndErrors> deleteNotAllowedException(DeleteNotAllowedException e, WebRequest request){
+
+        VndErrors error = new VndErrors(request.toString(), e.getMessage());
+
+        ResponseEntity<VndErrors> responseEntity = new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+        return responseEntity;
+    }
+
+    @ExceptionHandler(value = {InventoryNotFoundException.class})
+    @ResponseStatus( HttpStatus.NOT_FOUND)
+    public ResponseEntity<VndErrors> inventoryNotFoundException(InventoryNotFoundException e, WebRequest request){
+
+        VndErrors error = new VndErrors(request.toString(), e.getMessage());
+
+        ResponseEntity<VndErrors> responseEntity = new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        return responseEntity;
+    }
+
+    @ExceptionHandler(value = {InvoiceNotFoundException.class})
+    @ResponseStatus( HttpStatus.NOT_FOUND)
+    public ResponseEntity<VndErrors> invoiceNotFoundException(InvoiceNotFoundException e, WebRequest request){
+
+        VndErrors error = new VndErrors(request.toString(), e.getMessage());
+
+        ResponseEntity<VndErrors> responseEntity = new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        return responseEntity;
+    }
+
+    @ExceptionHandler(value = {LevelUpNotFoundException.class})
+    @ResponseStatus( HttpStatus.NOT_FOUND)
+    public ResponseEntity<VndErrors> levelUpNotFoundException(LevelUpNotFoundException e, WebRequest request){
+
+        VndErrors error = new VndErrors(request.toString(), e.getMessage());
+
+        ResponseEntity<VndErrors> responseEntity = new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        return responseEntity;
+    }
+
+    @ExceptionHandler(value = {ProductNotFoundException.class})
+    @ResponseStatus( HttpStatus.NOT_FOUND)
+    public ResponseEntity<VndErrors> productNotFoundException(ProductNotFoundException e, WebRequest request){
 
         VndErrors error = new VndErrors(request.toString(), e.getMessage());
 

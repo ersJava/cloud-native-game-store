@@ -15,23 +15,23 @@ import java.util.*;
 public class ServiceLayer {
 
     CustomerService customerService;
-    InventoyService inventoyService;
+    InventoryService inventoryService;
     InvoiceService invoiceService;
     LevelUpService levelUpService;
     ProductService productService;
 
     @Autowired
-    public ServiceLayer(CustomerService customerService, InventoyService inventoyService, InvoiceService invoiceService,
+    public ServiceLayer(CustomerService customerService, InventoryService inventoryService, InvoiceService invoiceService,
                         LevelUpService levelUpService, ProductService productService){
 
         this.customerService = customerService;
-        this.inventoyService = inventoyService;
+        this.inventoryService = inventoryService;
         this.invoiceService = invoiceService;
         this.levelUpService = levelUpService;
         this.productService = productService;
     }
 
-    //uri: /order
+    //uri: /invoice
     @Transactional
     public OrderViewModel processOrder(OrderViewModel ovm){
 
@@ -49,7 +49,7 @@ public class ServiceLayer {
         productsToBuy = filterProductsToBuyList(productsToBuy);
 
         //List InvoiceITems
-        List<InvoiceItem> invoiceItemsList = new ArrayList<>();
+        List<InvoiceItemViewModel> invoiceItemsList = new ArrayList<>();
 
         //Order Total
         double total = 0;
@@ -65,27 +65,26 @@ public class ServiceLayer {
             BigDecimal unitPrice = BigDecimal.valueOf(Double.valueOf(productService.getProduct(productId).getListPrice()));
 
             //Reading the Product in Stock from the InventoryService
-            List<InventoryViewModel> inventoryList = inventoyService.getAllInventoriesByProductId(product.getProductId());
+            List<InventoryViewModel> inventoryList = inventoryService.getAllInventoriesByProductId(product.getProductId());
 
             inventoryList = orderInventoryListByQuantity(inventoryList);
 
             int quantityToBuy = product.getQuantity();
 
             //Check if there is enough productsToBuy in the inventory.
-            List<InvoiceItem> invoiceItemsPerProduct = updateInventory(inventoryList, quantityToBuy);
+            List<InvoiceItemViewModel> invoiceItemsPerProduct = updateInventory(inventoryList, quantityToBuy);
 
             //Setting the Price and for every InvoiceItem
             invoiceItemsPerProduct.stream().forEach(invoiceItem -> invoiceItem.setUnitPrice(unitPrice));
 
             //Calculating the total of the Order
-            for (InvoiceItem invoiceItem : invoiceItemsPerProduct) {
+            for (InvoiceItemViewModel invoiceItem : invoiceItemsPerProduct) {
 
                 total = total + (invoiceItem.getQuantity() * invoiceItem.getUnitPrice().doubleValue());
 
                 //Adding each InvoiceItem inside the InvoiceItemsPerProduct to the List containing all InvoiceItems
                 invoiceItemsList.add(invoiceItem);
             }
-
         }
 
         //Setting the order total
@@ -182,9 +181,9 @@ public class ServiceLayer {
     }
 
     //Update inventory and create InvoiceItems
-    public List<InvoiceItem> updateInventory(List<InventoryViewModel> inventoryList, int quantityToBuy){
+    public List<InvoiceItemViewModel> updateInventory(List<InventoryViewModel> inventoryList, int quantityToBuy){
 
-        List<InvoiceItem> invoiceItemsToReturn = new ArrayList<>();
+        List<InvoiceItemViewModel> invoiceItemsToReturn = new ArrayList<>();
 
         int totalInInventory = 0;
 
@@ -202,7 +201,7 @@ public class ServiceLayer {
                 int quantityAvailable = inventory.getQuantity();
 
                 //Create an InvoiceItem
-                InvoiceItem invoiceItem = new InvoiceItem();
+                InvoiceItemViewModel invoiceItem = new InvoiceItemViewModel();
 
                 if(quantityToBuy > quantityAvailable){
 
@@ -216,7 +215,7 @@ public class ServiceLayer {
                     inventory.setQuantity(0);
 
                     //Updating the inventory
-                    inventoyService.updateInventory(inventory);  //Uncomment this
+                    inventoryService.updateInventory(inventory.getInventoryId(),inventory);  //Uncomment this
 
                     //Updating the invoiceItem
                     invoiceItem.setQuantity(invoiceItemQuantity);
@@ -230,7 +229,7 @@ public class ServiceLayer {
                     inventory.setQuantity(quantityAvailable - quantityToBuy);
 
                     //updating the inventory
-                    inventoyService.updateInventory(inventory);  //Uncomment this
+                    inventoryService.updateInventory(inventory.getInventoryId(),inventory);  //Uncomment this
 
                     //updating the invoiceItem
                     invoiceItem.setQuantity(quantityToBuy);
