@@ -46,7 +46,7 @@ public class InvoiceController {
     // Update - can add/update/delete InvoiceItems on InvoiceViewModel
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateInvoice (@PathVariable("id") Integer id, @RequestBody InvoiceViewModel invoice) {
+    public void updateInvoice (@PathVariable("id") Integer id, @RequestBody @Valid InvoiceViewModel invoice) {
 
         if (!id.equals(invoice.getInvoiceId())) {
             throw new IllegalArgumentException(String.format("Id %s in the PathVariable does not match the Id %s in the RequestBody ", id, invoice.getInvoiceId()));
