@@ -16,7 +16,7 @@ import static org.mockito.Mockito.*;
 public class ServiceLayerTest {
 
     CustomerService customerService;
-    InventoyService inventoyService;
+    InventoryService inventoryService;
     InvoiceService invoiceService;
     LevelUpService levelUpService;
     ProductService productService;
@@ -36,7 +36,7 @@ public class ServiceLayerTest {
 
         setUpInventoryServiceMock();
 
-        serviceLayer = new ServiceLayer(customerService, inventoyService, invoiceService, levelUpService,
+        serviceLayer = new ServiceLayer(customerService, inventoryService, invoiceService, levelUpService,
                 productService);
     }
 
@@ -45,28 +45,28 @@ public class ServiceLayerTest {
         invoiceService = mock(InvoiceService.class);
 
         //Setting up the InvoiceItems list for the Calling Object
-        InvoiceItem invoiceItem1C = new InvoiceItem();
+        InvoiceItemViewModel invoiceItem1C = new InvoiceItemViewModel();
         invoiceItem1C.setInvoiceItemId(0);
         invoiceItem1C.setInvoiceId(0);
         invoiceItem1C.setInventoryId(3);
         invoiceItem1C.setQuantity(3);
         invoiceItem1C.setUnitPrice(new BigDecimal("200.23"));
 
-        InvoiceItem invoiceItem2C = new InvoiceItem();
+        InvoiceItemViewModel invoiceItem2C = new InvoiceItemViewModel();
         invoiceItem2C.setInvoiceItemId(0);
         invoiceItem2C.setInvoiceId(0);
         invoiceItem2C.setInventoryId(1);
         invoiceItem2C.setQuantity(2);
         invoiceItem2C.setUnitPrice(new BigDecimal("200.23"));
 
-        InvoiceItem invoiceItem3C = new InvoiceItem();
+        InvoiceItemViewModel invoiceItem3C = new InvoiceItemViewModel();
         invoiceItem3C.setInvoiceItemId(0);
         invoiceItem3C.setInvoiceId(0);
         invoiceItem3C.setInventoryId(4);
         invoiceItem3C.setQuantity(2);
         invoiceItem3C.setUnitPrice(new BigDecimal("300.54"));
 
-        List<InvoiceItem> callingInvoiceItems = new ArrayList<>();
+        List<InvoiceItemViewModel> callingInvoiceItems = new ArrayList<>();
 
         callingInvoiceItems.add(invoiceItem1C);
         callingInvoiceItems.add(invoiceItem2C);
@@ -82,28 +82,28 @@ public class ServiceLayerTest {
         //////////////////////////////////////////////////////////////////
         //////////////////////////////////////////////////////////////////
         //Setting up the InvoiceItems list for the Object to be returned
-        InvoiceItem invoiceItem1 = new InvoiceItem();
+        InvoiceItemViewModel invoiceItem1 = new InvoiceItemViewModel();
         invoiceItem1.setInvoiceItemId(1);
         invoiceItem1.setInvoiceId(1);
         invoiceItem1.setInventoryId(3);
         invoiceItem1.setQuantity(3);
         invoiceItem1.setUnitPrice(new BigDecimal("200.23"));
 
-        InvoiceItem invoiceItem2 = new InvoiceItem();
+        InvoiceItemViewModel invoiceItem2 = new InvoiceItemViewModel();
         invoiceItem2.setInvoiceItemId(2);
         invoiceItem2.setInvoiceId(1);
         invoiceItem2.setInventoryId(1);
         invoiceItem2.setQuantity(2);
         invoiceItem2.setUnitPrice(new BigDecimal("200.23"));
 
-        InvoiceItem invoiceItem3 = new InvoiceItem();
+        InvoiceItemViewModel invoiceItem3 = new InvoiceItemViewModel();
         invoiceItem3.setInvoiceItemId(3);
         invoiceItem3.setInvoiceId(1);
         invoiceItem3.setInventoryId(4);
         invoiceItem3.setQuantity(2);
         invoiceItem3.setUnitPrice(new BigDecimal("300.54"));
 
-        List<InvoiceItem> invoiceItems = new ArrayList<>();
+        List<InvoiceItemViewModel> invoiceItems = new ArrayList<>();
 
         invoiceItems.add(invoiceItem1);
         invoiceItems.add(invoiceItem2);
@@ -186,7 +186,7 @@ public class ServiceLayerTest {
     }
 
     public void setUpInventoryServiceMock(){
-        inventoyService = mock(InventoyService.class);
+        inventoryService = mock(InventoryService.class);
 
         InventoryViewModel inventory1 = new InventoryViewModel();
         inventory1.setInventoryId(1);
@@ -218,8 +218,8 @@ public class ServiceLayerTest {
         List<InventoryViewModel> listInventoryProduct2 = new ArrayList<>();
         listInventoryProduct2.add(inventory4);
 
-        doReturn(listInventoryProduct1).when(inventoyService).getAllInventoriesByProductId(1);
-        doReturn(listInventoryProduct2).when(inventoyService).getAllInventoriesByProductId(2);
+        doReturn(listInventoryProduct1).when(inventoryService).getAllInventoriesByProductId(1);
+        doReturn(listInventoryProduct2).when(inventoryService).getAllInventoriesByProductId(2);
 
         //ToUpdate
         InventoryViewModel inventory3Updated = new InventoryViewModel();
@@ -239,9 +239,9 @@ public class ServiceLayerTest {
 
 
 
-        doNothing().when(inventoyService).updateInventory(inventory3Updated);
-        doNothing().when(inventoyService).updateInventory(inventory4Updated);
-        doNothing().when(inventoyService).updateInventory(inventory1Updated);
+        doNothing().when(inventoryService).updateInventory(inventory3Updated.getInventoryId(), inventory3Updated);
+        doNothing().when(inventoryService).updateInventory(inventory4Updated.getInventoryId(), inventory4Updated);
+        doNothing().when(inventoryService).updateInventory(inventory1Updated.getInventoryId(), inventory1Updated);
 
     }
 
@@ -302,8 +302,6 @@ public class ServiceLayerTest {
         List<ProductToBuyViewModel> filteredProductList = serviceLayer.filterProductsToBuyList(productList);
 
         System.out.println("Hello");
-
-
     }
 
     @Test
