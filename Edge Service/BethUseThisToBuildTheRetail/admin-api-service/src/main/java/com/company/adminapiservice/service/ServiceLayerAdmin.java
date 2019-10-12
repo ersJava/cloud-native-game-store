@@ -89,8 +89,8 @@ public class ServiceLayerAdmin {
     }
 
     //uri: /customer/{id}
-    //Get a Customer for Id
-    public FrontEndCustomerViewModel getCustomer(int id){
+    //Get a FrontEndCustomer for Id
+    public FrontEndCustomerViewModel getCustomerFrontEnd(int id){
 
         FrontEndCustomerViewModel fecvm = new FrontEndCustomerViewModel();
 
@@ -105,6 +105,7 @@ public class ServiceLayerAdmin {
 
         try{
             fecvm.setLevelUpAccount(levelUpService.getLevelUpAccountByCustomerId(cvm.getCustomerId()));
+            fecvm.setCreationDate(fecvm.getLevelUpAccount().getMemberDate());
         }catch (RuntimeException e){
             fecvm.setLevelUpAccount(null);
         }
@@ -112,7 +113,8 @@ public class ServiceLayerAdmin {
         return fecvm;
     }
 
-    public CustomerViewModel getCustomerViewModel(int id){
+    //Get CustomerViewModel
+    public CustomerViewModel getCustomer(int id){
         try{
             return customerService.getCustomer(id);
         }catch (RuntimeException e){
