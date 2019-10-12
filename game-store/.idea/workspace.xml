@@ -2,14 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="fc5e7d07-de2f-4f46-a850-d5163f4ae8df" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/../MicroServices/customer-service/src/main/java/com/company/customerservice/controller/CustomerController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../MicroServices/customer-service/src/main/java/com/company/customerservice/dao/CustomerDao.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../MicroServices/customer-service/src/main/java/com/company/customerservice/dao/CustomerDaoJdbcTemplateImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../MicroServices/customer-service/src/main/java/com/company/customerservice/exception/CustomerNotFoundException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../MicroServices/customer-service/src/main/java/com/company/customerservice/model/Customer.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../MicroServices/customer-service/src/main/java/com/company/customerservice/service/ServiceLayer.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../MicroServices/customer-service/src/main/java/com/company/customerservice/viewmodel/CustomerViewModel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../MicoServices/download.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Edge Service/BethUseThisToBuildTheRetail/admin-api-service/src/main/java/com/company/adminapiservice/controller/AdminApiController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../Edge Service/BethUseThisToBuildTheRetail/admin-api-service/src/main/java/com/company/adminapiservice/controller/AdminApiController.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/classes/" />
     <ignored path="$PROJECT_DIR$/target/" />
@@ -30,8 +23,8 @@
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="-5" />
-    <option name="width" value="988" />
-    <option name="height" value="1039" />
+    <option name="width" value="989" />
+    <option name="height" value="1040" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -39,6 +32,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
+      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -51,21 +46,14 @@
               <item name="game-store" type="462c0819:PsiDirectoryNode" />
               <item name=".idea" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="game-store" type="b2602c69:ProjectViewProjectNode" />
-              <item name="game-store" type="462c0819:PsiDirectoryNode" />
-              <item name=".idea" type="462c0819:PsiDirectoryNode" />
-              <item name="libraries" type="462c0819:PsiDirectoryNode" />
-            </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="PackagesPane" />
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
   </component>
   <component name="RunDashboard">
@@ -96,7 +84,7 @@
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.25302014" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.25637585" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />

@@ -309,4 +309,8 @@ public class ServiceLayerAdminCustomerTest {
 
         assertEquals(fromService.size(), 1);
     }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //Test for Delete Customer is in ServiceLayerAdminDeleteCustomerProductTest
+    //\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\//
 }

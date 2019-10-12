@@ -1,6 +1,7 @@
 package com.company.adminapiservice.service;
 
 import com.company.adminapiservice.exception.CustomerNotFoundException;
+import com.company.adminapiservice.exception.InvoiceNotFoundException;
 import com.company.adminapiservice.util.feign.*;
 import com.company.adminapiservice.viewmodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,12 @@ public class ServiceLayer {
         this.productService = productService;
     }
 
-    //uri: /invoice
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////INVOICE METHODS///////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //uri: /invoices
+    //Create an Invoice
     @Transactional
     public OrderViewModel processOrder(OrderViewModel ovm){
 
@@ -133,8 +139,50 @@ public class ServiceLayer {
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //////////////////////////////Helper methods for process and OrderViewModel\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    //Get all Invoice(s)
+    public List<InvoiceViewModel> getAllInvoices(){
+
+        try{
+            return invoiceService.getAllInvoices();
+        }catch (RuntimeException e){
+            throw new InvoiceNotFoundException("The database is empty!!! No Invoice(s) found in the Database");
+        }
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //uri: /invoices/{id}
+    //Get an Invoice for the Id
+    public InvoiceViewModel getInvoice(int id){
+
+        try{
+            return invoiceService.getInvoice(id);
+        }catch (RuntimeException e){
+            throw new InvoiceNotFoundException("No Invoice found in the Database for id " + id + "!");
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //Delete an Invoice
+    public void deleteInvoice(int id){
+        invoiceService.deleteInvoice(id);
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //uri: /invoices/customer/{customerId}
+    public List<InvoiceViewModel> getInvoicesByCustomerId(int customerId){
+
+        try{
+            return invoiceService.getInvoicesByCustomerId(customerId);
+        }catch (RuntimeException e){
+            throw new InvoiceNotFoundException("No invoices in the system found with customer id " + customerId);
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////Helper methods for process an INVOICE\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     public List<ProductToBuyViewModel> filterProductsToBuyList(List<ProductToBuyViewModel> productList){
 
         List<ProductToBuyViewModel> filteredList = new ArrayList<>();
