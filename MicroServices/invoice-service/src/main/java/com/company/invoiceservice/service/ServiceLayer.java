@@ -38,6 +38,7 @@ public class ServiceLayer {
         invoiceItem.setQuantity(itemViewModel.getQuantity());
         invoiceItem.setUnitPrice(itemViewModel.getUnitPrice());
         invoiceItem = invoiceItemDao.addInvoiceItem(invoiceItem);
+
         itemViewModel.setInvoiceItemId(invoiceItem.getInvoiceItemId());
 
         return itemViewModel;
