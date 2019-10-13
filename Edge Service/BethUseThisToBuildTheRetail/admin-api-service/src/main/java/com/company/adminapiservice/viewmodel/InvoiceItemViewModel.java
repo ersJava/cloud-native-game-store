@@ -1,5 +1,7 @@
 package com.company.adminapiservice.viewmodel;
 
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Objects;
 
@@ -8,8 +10,14 @@ public class InvoiceItemViewModel {
     private Integer invoiceItemId;
 
     private Integer invoiceId;
+
+    @NotNull(message = "Please supply an inventoryId")
     private Integer inventoryId;
+
+    @NotNull(message = "Please supply a quantity for the item")
     private Integer quantity;
+
+    @Digits(integer = 7, fraction = 2)
     private BigDecimal unitPrice;
 
     //getters and setters

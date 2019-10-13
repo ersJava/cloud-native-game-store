@@ -6,6 +6,7 @@ import java.util.Objects;
 
 public class InvoiceViewModel {
 
+    //The validation is do through the OrderViewModel
     private Integer invoiceId;
 
     private Integer customerId;

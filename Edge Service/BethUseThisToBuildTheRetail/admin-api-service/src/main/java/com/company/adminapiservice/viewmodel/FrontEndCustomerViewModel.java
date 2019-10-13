@@ -1,12 +1,20 @@
 package com.company.adminapiservice.viewmodel;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Future;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
 import java.time.LocalDate;
 import java.util.Objects;
 
 public class FrontEndCustomerViewModel {
 
+    @Valid
     private CustomerViewModel customerViewModel;
 
+    @Future(message = "Cannot be a past date")
+    @NotNull(message = "Please provide a creadtiondate for the customer")
     private LocalDate creationDate;
 
     private LevelUpViewModel levelUpAccount;
