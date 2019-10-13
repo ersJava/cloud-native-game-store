@@ -1,5 +1,6 @@
 package com.company.retailapiservice.util.feign;
 
+import com.company.retailapiservice.viewmodel.InvoiceItemViewModel;
 import com.company.retailapiservice.viewmodel.InvoiceViewModel;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,5 +25,8 @@ public interface InvoiceClient {
 
     @RequestMapping(value = "/invoices/customer/{customerId}", method = RequestMethod.GET)
     List<InvoiceViewModel> getInvoicesByCustomerId(@PathVariable("customerId") Integer customerId);
+
+    @RequestMapping(value = "/invoices/item", method = RequestMethod.POST)
+    InvoiceItemViewModel createItem(@RequestBody @Valid InvoiceItemViewModel invoice);
 
 }

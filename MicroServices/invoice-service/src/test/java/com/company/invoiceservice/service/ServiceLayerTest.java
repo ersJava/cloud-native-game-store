@@ -40,12 +40,12 @@ public class ServiceLayerTest {
 
         invoiceDao = mock(InvoiceDaoJdbcTemplateImpl.class);
 
-        //Invoice To Return
         Invoice invoice = new Invoice();
         invoice.setInvoiceId(1);
         invoice.setCustomerId(10);
         invoice.setPurchaseDate(LocalDate.of(2019, 10, 15));
 
+        // Calling obj
         Invoice invoice1 = new Invoice();
         invoice1.setCustomerId(10);
         invoice1.setPurchaseDate(LocalDate.of(2019, 10, 15));
@@ -101,60 +101,44 @@ public class ServiceLayerTest {
         invoiceItem1.setQuantity(3);
         invoiceItem1.setUnitPrice(new BigDecimal("4.99"));
 
+        List<InvoiceItem> list = new ArrayList<>();
+        list.add(invoiceItem);
+
         // Mock addItem
         doReturn(invoiceItem).when(invoiceItemDao).addInvoiceItem(invoiceItem1);
 
-        //A second Invoice Item for the List
-        InvoiceItem invoiceItem2 = new InvoiceItem();
-        invoiceItem2.setInvoiceItemId(970);
-        invoiceItem2.setInvoiceId(1);
-        invoiceItem2.setInventoryId(40002);
-        invoiceItem2.setQuantity(3);
-        invoiceItem2.setUnitPrice(new BigDecimal("4.99"));
-
-        InvoiceItem invoiceItem3 = new InvoiceItem();
-        invoiceItem3.setInvoiceItemId(791);
-        invoiceItem3.setInvoiceId(2);
-        invoiceItem3.setInventoryId(40001);
-        invoiceItem3.setQuantity(3);
-        invoiceItem3.setUnitPrice(new BigDecimal("4.99"));
-
-        //A second Invoice Item for the List
-        InvoiceItem invoiceItem4 = new InvoiceItem();
-        invoiceItem4.setInvoiceItemId(971);
-        invoiceItem4.setInvoiceId(2);
-        invoiceItem4.setInventoryId(40002);
-        invoiceItem4.setQuantity(3);
-        invoiceItem4.setUnitPrice(new BigDecimal("4.99"));
-
-        List<InvoiceItem> list = new ArrayList<>();
-        list.add(invoiceItem);
-        list.add(invoiceItem3);
-
-//        List<InvoiceItem> list2 = new ArrayList<>();
-//        list2.add(invoiceItem3);
-//        list2.add(invoiceItem4);
-
         // Mock getItemByInvoiceId
         doReturn(list).when(invoiceItemDao).getItemsByInvoiceId(1);
-//        doReturn(list2).when(invoiceItemDao).getItemsByInvoiceId(2);
 
-       //  Mock data
-//        InvoiceItem updateItem= new InvoiceItem();
-//        updateItem.setInvoiceItemId(791);
-//        updateItem.setInvoiceId(2);
-//        updateItem.setInventoryId(40001);
-//        updateItem.setQuantity(3);
-//        updateItem.setUnitPrice(new BigDecimal("4.99"));
+        // Mock data
+        InvoiceItem updateItem= new InvoiceItem();
+        updateItem.setInvoiceItemId(791);
+        updateItem.setInvoiceId(2);
+        updateItem.setInventoryId(40008);
+        updateItem.setQuantity(12);
+        updateItem.setUnitPrice(new BigDecimal("4.99"));
+
+        InvoiceItem updateItem1 = new InvoiceItem();
+        updateItem1.setInvoiceId(2);
+        updateItem1.setInventoryId(40008);
+        updateItem1.setQuantity(12);
+        updateItem1.setUnitPrice(new BigDecimal("4.99"));
+
+        // Mock update
+        doNothing().when(invoiceItemDao).updateItem(updateItem);
+        doReturn(updateItem).when(invoiceItemDao).getInvoiceItem(791);
+
+        doReturn(updateItem).when(invoiceItemDao).addInvoiceItem(updateItem1);
+
+        List<InvoiceItem> listUpdate = new ArrayList<>();
+        listUpdate.add(updateItem);
+
+        doReturn(listUpdate).when(invoiceItemDao).getItemsByInvoiceId(2);
 
     }
 
     @Test
     public void saveFindInvoice() {
-
-        InvoiceViewModel ivm = new InvoiceViewModel();
-        ivm.setCustomerId(10);
-        ivm.setPurchaseDate(LocalDate.of(2019, 10, 15));
 
         InvoiceItemViewModel item = new InvoiceItemViewModel();
         item.setInventoryId(40001);
@@ -164,6 +148,9 @@ public class ServiceLayerTest {
         List<InvoiceItemViewModel> list = new ArrayList<>();
         list.add(item);
 
+        InvoiceViewModel ivm = new InvoiceViewModel();
+        ivm.setCustomerId(10);
+        ivm.setPurchaseDate(LocalDate.of(2019, 10, 15));
         ivm.setItemList(list);
 
         ivm = servicelayer.saveInvoice(ivm);
@@ -195,39 +182,46 @@ public class ServiceLayerTest {
 
         List<InvoiceItemViewModel> invoiceItems = servicelayer.getInvoiceItemByInventoryId(40001);
 
-        assertEquals(invoiceItems.size(), 2);
+        assertEquals(invoiceItems.size(), 1);
     }
 
     @Test
     public void updateInvoice() {
 
         InvoiceViewModel ivmUpdate = new InvoiceViewModel();
+        InvoiceItemViewModel itemVMUpdate = new InvoiceItemViewModel();
 
         Invoice updateInvoice = new Invoice();
         updateInvoice.setInvoiceId(2);
         updateInvoice.setCustomerId(20);
         updateInvoice.setPurchaseDate(LocalDate.of(2019, 10, 15));
-//
-//        InvoiceItemViewModel iivmUpdate = new InvoiceItemViewModel();
-//        iivmUpdate.setInvoiceItemId(791);
-//        iivmUpdate.setInvoiceId(2);
-//        iivmUpdate.setInventoryId(40001);
-//        iivmUpdate.setQuantity(3);
-//        iivmUpdate.setUnitPrice(new BigDecimal("4.99"));
-//
-//        List<InvoiceItemViewModel> invoiceItemViewModelList = new ArrayList<>();
-//        invoiceItemViewModelList.add(iivmUpdate);
-//
+
+        InvoiceItem updateItem= new InvoiceItem();
+        updateItem.setInvoiceItemId(791);
+        updateItem.setInvoiceId(2);
+        updateItem.setInventoryId(40008);
+        updateItem.setQuantity(12);
+        updateItem.setUnitPrice(new BigDecimal("4.99"));
+
+        itemVMUpdate.setInvoiceItemId(updateItem.getInvoiceItemId());
+        itemVMUpdate.setInvoiceId(updateItem.getInvoiceId());
+        itemVMUpdate.setInventoryId(updateItem.getInventoryId());
+        itemVMUpdate.setQuantity(updateItem.getQuantity());
+        itemVMUpdate.setUnitPrice(updateItem.getUnitPrice());
+
+        List<InvoiceItemViewModel> list = new ArrayList<>();
+        list.add(itemVMUpdate);
+
         ivmUpdate.setInvoiceId(updateInvoice.getInvoiceId());
         ivmUpdate.setCustomerId(updateInvoice.getCustomerId());
         ivmUpdate.setPurchaseDate(updateInvoice.getPurchaseDate());
-//        ivmUpdate.setItemList(invoiceItemViewModelList);
-//
+        ivmUpdate.setItemList(list);
+
         servicelayer.updateInvoice(ivmUpdate);
 
-        InvoiceViewModel ivmAfterUpdate = servicelayer.findInvoice(ivmUpdate.getInvoiceId());
+        InvoiceViewModel afterUpdate = servicelayer.findInvoice(2);
 
-        assertEquals(ivmAfterUpdate, ivmUpdate);
+        assertEquals(afterUpdate, ivmUpdate);
 
     }
 

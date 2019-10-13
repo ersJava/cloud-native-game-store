@@ -6,46 +6,46 @@ import java.util.Objects;
 
 public class InvoiceItemViewModel {
 
-    private int invoiceItemId;
-    private int invoiceId;
+    private Integer  invoiceItemId;
+    private Integer  invoiceId;
 
     @NotNull(message = "Please supply an inventory ID")
-    private int inventoryId;
+    private Integer  inventoryId;
 
     @NotNull(message = "Please supply a quantity for item")
-    private int quantity;
+    private Integer  quantity;
 
     private BigDecimal unitPrice;
 
-    public int getInvoiceItemId() {
+    public Integer getInvoiceItemId() {
         return invoiceItemId;
     }
 
-    public void setInvoiceItemId(int invoiceItemId) {
+    public void setInvoiceItemId(Integer invoiceItemId) {
         this.invoiceItemId = invoiceItemId;
     }
 
-    public int getInvoiceId() {
+    public Integer getInvoiceId() {
         return invoiceId;
     }
 
-    public void setInvoiceId(int invoiceId) {
+    public void setInvoiceId(Integer invoiceId) {
         this.invoiceId = invoiceId;
     }
 
-    public int getInventoryId() {
+    public Integer getInventoryId() {
         return inventoryId;
     }
 
-    public void setInventoryId(int inventoryId) {
+    public void setInventoryId(Integer inventoryId) {
         this.inventoryId = inventoryId;
     }
 
-    public int getQuantity() {
+    public Integer getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 
@@ -62,11 +62,11 @@ public class InvoiceItemViewModel {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         InvoiceItemViewModel that = (InvoiceItemViewModel) o;
-        return getInvoiceItemId() == that.getInvoiceItemId() &&
-                getInvoiceId() == that.getInvoiceId() &&
-                getInventoryId() == that.getInventoryId() &&
-                getQuantity() == that.getQuantity() &&
-                Objects.equals(getUnitPrice(), that.getUnitPrice());
+        return getInvoiceItemId().equals(that.getInvoiceItemId()) &&
+                getInvoiceId().equals(that.getInvoiceId()) &&
+                getInventoryId().equals(that.getInventoryId()) &&
+                getQuantity().equals(that.getQuantity()) &&
+                getUnitPrice().equals(that.getUnitPrice());
     }
 
     @Override
