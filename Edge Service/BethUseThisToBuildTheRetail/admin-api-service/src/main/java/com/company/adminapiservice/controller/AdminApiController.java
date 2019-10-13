@@ -31,7 +31,7 @@ public class AdminApiController {
     //Create a Customer receiving a FrontEndCustomerViewModel
     @RequestMapping(value = "/customerFrontEnd", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
-    public FrontEndCustomerViewModel createCostumerFrontEnd(@RequestBody FrontEndCustomerViewModel fecvm) {
+    public FrontEndCustomerViewModel createCostumerFrontEnd(@RequestBody @Valid FrontEndCustomerViewModel fecvm) {
 
         return serviceLayerAdmin.createCustomer(fecvm);
     }
@@ -49,7 +49,7 @@ public class AdminApiController {
     //Create a Customer receiving a CustomerViewModel
     @RequestMapping(value = "/customer", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
-    public CustomerViewModel createCostumer(@RequestBody CustomerViewModel cvm) {
+    public CustomerViewModel createCostumer(@RequestBody @Valid CustomerViewModel cvm) {
 
         return serviceLayerAdmin.createCustomer(cvm);
     }
@@ -74,7 +74,7 @@ public class AdminApiController {
     //Update CustomerViewModel
     @RequestMapping(value = "/customer/{id}", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.OK)
-    public void updateCostumer(@PathVariable int id, @RequestBody CustomerViewModel cvm) {
+    public void updateCostumer(@PathVariable int id, @RequestBody @Valid CustomerViewModel cvm) {
 
         if(id != cvm.getCustomerId()){
             throw new UpdateNotAllowedException("Update not allowed, the id in the PathVariable does not match with the id in the RequestBody");
@@ -99,7 +99,7 @@ public class AdminApiController {
     //Create a Customer receiving a CustomerViewModel
     @RequestMapping(value = "/inventory", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
-    InventoryViewModel createInventory(@RequestBody InventoryViewModel ivm){
+    InventoryViewModel createInventory(@RequestBody @Valid InventoryViewModel ivm){
         return serviceLayerAdmin.createInventory(ivm);
     }
 
@@ -121,7 +121,7 @@ public class AdminApiController {
     //Update an Inventory Registry
     @RequestMapping(value = "/inventory/{id}", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.OK)
-    void updateInventory(@PathVariable("id") Integer id, @RequestBody InventoryViewModel ivm){
+    void updateInventory(@PathVariable("id") Integer id, @RequestBody @Valid InventoryViewModel ivm){
         if(id != ivm.getInventoryId()){
             throw new UpdateNotAllowedException("Update not allowed, the id in the PathVariable does not match with the id in the RequestBody");
         }else{
@@ -150,7 +150,7 @@ public class AdminApiController {
     //Create invoice registry
     @RequestMapping(value = "/invoices", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
-    OrderViewModel createInvoice(@RequestBody OrderViewModel ovm){
+    OrderViewModel createInvoice(@RequestBody @Valid OrderViewModel ovm){
 
         return serviceLayer.processOrder(ovm);
     }
@@ -184,7 +184,7 @@ public class AdminApiController {
     //Create levelup account
     @RequestMapping(value = "/levelup", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
-    LevelUpViewModel createLevelUpAccount(@RequestBody LevelUpViewModel lvm){
+    LevelUpViewModel createLevelUpAccount(@RequestBody @Valid LevelUpViewModel lvm){
         return serviceLayerAdmin.createLevelUp(lvm);
     }
 
@@ -214,7 +214,7 @@ public class AdminApiController {
     //Update points by customerId
     @RequestMapping(value = "/levelup/points/{customerId}", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.OK)
-    void updatePointsOnAccount(@PathVariable int customerId, @RequestBody LevelUpViewModel lvm){
+    void updatePointsOnAccount(@PathVariable int customerId, @RequestBody @Valid LevelUpViewModel lvm){
 
         if(customerId != lvm.getCustomerId()){
             throw new UpdateNotAllowedException("Update not allowed, the id in the PathVariable does not match with the id in the RequestBody");
@@ -239,7 +239,7 @@ public class AdminApiController {
     //Create a new Product
     @RequestMapping(value = "/product", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
-    ProductViewModel newProduct(@RequestBody ProductViewModel pvm){
+    ProductViewModel newProduct(@RequestBody @Valid ProductViewModel pvm){
         return serviceLayerAdmin.createProduct(pvm);
     }
 
@@ -262,7 +262,7 @@ public class AdminApiController {
     //Update a existing Product
     @RequestMapping(value = "/product/{id}", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.OK)
-    void updateProduct(@PathVariable int id, @RequestBody ProductViewModel pvm){
+    void updateProduct(@PathVariable int id, @RequestBody @Valid ProductViewModel pvm){
 
         if (id != pvm.getProductId()){
             throw new UpdateNotAllowedException("Update not allowed, the id in the PathVariable does not match with the id in the RequestBody");

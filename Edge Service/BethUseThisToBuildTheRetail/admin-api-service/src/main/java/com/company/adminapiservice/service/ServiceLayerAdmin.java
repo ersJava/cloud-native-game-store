@@ -246,7 +246,13 @@ public class ServiceLayerAdmin {
             throw new CustomerNotFoundException("Creation of LevelUp not Allowed, No Customer found in the database for id #" +  lvm.getCustomerId()+ " !");
         }
 
-        return levelUpService.createLevelUpAccount(lvm);
+        try{
+            lvm = levelUpService.createLevelUpAccount(lvm);
+        }catch (RuntimeException e){
+            throw new LevelUpAccountExistException("Impossible Account creation, Customer have already a levelUp Account");
+        }
+
+        return lvm;
     }
 
     //Get All LevelUp Accounts
