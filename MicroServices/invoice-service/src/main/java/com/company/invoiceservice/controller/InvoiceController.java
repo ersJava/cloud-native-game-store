@@ -71,12 +71,12 @@ public class InvoiceController {
     }
 
     // Create Item - used only to build Invoice
-    @PostMapping("/item")
-    @ResponseStatus(HttpStatus.CREATED)
-    public InvoiceItemViewModel createItem(@RequestBody @Valid InvoiceItemViewModel item) {
-
-        return serviceLayer.saveItem(item);
-    }
+//    @PostMapping("/item")
+//    @ResponseStatus(HttpStatus.CREATED)
+//    public InvoiceItemViewModel createItem(@RequestBody @Valid InvoiceItemViewModel item) {
+//
+//        return serviceLayer.saveItem(item);
+//    }
   
     //Get Invoice Items by inventoryId
     @GetMapping("/inventory/{inventoryId}")

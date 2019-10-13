@@ -23,7 +23,7 @@ public class OrderForm {
 
     @NotEmpty(message = "Please supply an purchase item for invoice order")
     @Valid
-    private List<InvoiceItem> itemList = new ArrayList<>();
+    private List<InvoiceItemViewModel> itemList = new ArrayList<>();
 
     private int levelUpPointsEarned;
 
@@ -69,11 +69,11 @@ public class OrderForm {
         this.orderTotal = orderTotal;
     }
 
-    public List<InvoiceItem> getItemList() {
+    public List<InvoiceItemViewModel> getItemList() {
         return itemList;
     }
 
-    public void setItemList(List<InvoiceItem> itemList) {
+    public void setItemList(List<InvoiceItemViewModel> itemList) {
         this.itemList = itemList;
     }
 

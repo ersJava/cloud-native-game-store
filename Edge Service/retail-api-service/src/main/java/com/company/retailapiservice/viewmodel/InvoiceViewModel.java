@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Objects;
 
 public class InvoiceViewModel {
-
     private Integer invoiceId;
 
     @NotNull(message = "Please supply a value for Customer ID")
@@ -22,7 +21,7 @@ public class InvoiceViewModel {
 
     @NotEmpty(message = "Please supply an purchase item for invoice order")
     @Valid
-    private List<InvoiceItem> itemList = new ArrayList<>();
+    private List<InvoiceItemViewModel> itemList = new ArrayList<>();
 
     public Integer getInvoiceId() {
         return invoiceId;
@@ -48,11 +47,11 @@ public class InvoiceViewModel {
         this.purchaseDate = purchaseDate;
     }
 
-    public List<InvoiceItem> getItemList() {
+    public List<InvoiceItemViewModel> getItemList() {
         return itemList;
     }
 
-    public void setItemList(List<InvoiceItem> itemList) {
+    public void setItemList(List<InvoiceItemViewModel> itemList) {
         this.itemList = itemList;
     }
 
@@ -71,4 +70,5 @@ public class InvoiceViewModel {
     public int hashCode() {
         return Objects.hash(getInvoiceId(), getCustomerId(), getPurchaseDate(), getItemList());
     }
+
 }

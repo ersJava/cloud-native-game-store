@@ -1,7 +1,10 @@
 package com.company.retailapiservice.controller;
 
+import com.company.retailapiservice.service.ServiceLayer;
 import com.company.retailapiservice.viewmodel.InvoiceViewModel;
+import com.company.retailapiservice.viewmodel.OrderForm;
 import com.company.retailapiservice.viewmodel.ProductViewModel;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -9,10 +12,13 @@ import java.util.List;
 @RestController
 public class RetailController {
 
+    @Autowired
+    private ServiceLayer serviceLayer;
+
 
     @RequestMapping(value = "/invoice", method = RequestMethod.POST)
-    public InvoiceViewModel submitInvoice(@RequestBody InvoiceViewModel invoice) {
-        return null;
+    public OrderForm submitInvoice(@RequestBody OrderForm orderForm) {
+        return serviceLayer.submitOrderForm(orderForm);
     }
 
     @RequestMapping(value = "/invoice/{id}", method = RequestMethod.GET)
