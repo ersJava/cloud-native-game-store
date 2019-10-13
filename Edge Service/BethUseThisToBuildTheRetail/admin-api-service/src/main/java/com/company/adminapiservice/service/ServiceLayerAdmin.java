@@ -142,7 +142,7 @@ public class ServiceLayerAdmin {
         }
 
         if(count != 0){
-            throw new DeleteNotAllowedException("Impossible Deletion, there is LevelUp Account associated with this Customer");
+            throw new DeleteNotAllowedException("Impossible Deletion, there is a LevelUp Account associated with this Customer");
         }
 
     }
@@ -291,7 +291,7 @@ public class ServiceLayerAdmin {
         try{
             return levelUpService.getLevelUpAccountByCustomerId(customerId);
         }catch (RuntimeException e){
-            throw new LevelUpNotFoundException("No LevelUp Account in the system found with customer id " + customerId);
+            throw new LevelUpNotFoundException("No LevelUp Account in the system found for customer id " + customerId);
         }
     }
 

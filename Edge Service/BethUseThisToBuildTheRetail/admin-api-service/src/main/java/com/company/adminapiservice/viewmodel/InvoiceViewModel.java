@@ -6,19 +6,19 @@ import java.util.Objects;
 
 public class InvoiceViewModel {
 
-    private int invoiceId;
+    private Integer invoiceId;
 
     private Integer customerId;
     private LocalDate purchaseDate;
 
-    private List<InvoiceItemViewModel> invoiceItems;
+    private List<InvoiceItemViewModel> itemList;
 
     //getters and setters
-    public int getInvoiceId() {
+    public Integer getInvoiceId() {
         return invoiceId;
     }
 
-    public void setInvoiceId(int invoiceId) {
+    public void setInvoiceId(Integer invoiceId) {
         this.invoiceId = invoiceId;
     }
 
@@ -38,12 +38,12 @@ public class InvoiceViewModel {
         this.purchaseDate = purchaseDate;
     }
 
-    public List<InvoiceItemViewModel> getInvoiceItems() {
-        return invoiceItems;
+    public List<InvoiceItemViewModel> getItemList() {
+        return itemList;
     }
 
-    public void setInvoiceItems(List<InvoiceItemViewModel> invoiceItems) {
-        this.invoiceItems = invoiceItems;
+    public void setItemList(List<InvoiceItemViewModel> itemList) {
+        this.itemList = itemList;
     }
 
     //equals and hashcode
@@ -52,14 +52,14 @@ public class InvoiceViewModel {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         InvoiceViewModel that = (InvoiceViewModel) o;
-        return getInvoiceId() == that.getInvoiceId() &&
-                getCustomerId().equals(that.getCustomerId()) &&
-                getPurchaseDate().equals(that.getPurchaseDate()) &&
-                getInvoiceItems().equals(that.getInvoiceItems());
+        return Objects.equals(getInvoiceId(), that.getInvoiceId()) &&
+                Objects.equals(getCustomerId(), that.getCustomerId()) &&
+                Objects.equals(getPurchaseDate(), that.getPurchaseDate()) &&
+                Objects.equals(getItemList(), that.getItemList());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getInvoiceId(), getCustomerId(), getPurchaseDate(), getInvoiceItems());
+        return Objects.hash(getInvoiceId(), getCustomerId(), getPurchaseDate(), getItemList());
     }
 }

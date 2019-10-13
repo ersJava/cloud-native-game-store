@@ -88,13 +88,17 @@ public class ServiceLayer {
 
         List<InvoiceItemViewModel> itemList = viewModel.getItemList();
 
+        //Added
+        List<InvoiceItemViewModel> fromDatabase = new ArrayList<>();
+
         itemList.forEach(item->
         {
             item.setInvoiceId(viewModel.getInvoiceId());
-            saveItem(item);
+            //added
+            fromDatabase.add(saveItem(item));
         });
 
-        viewModel.setItemList(itemList);
+        viewModel.setItemList(fromDatabase);
 
         return viewModel;
     }
