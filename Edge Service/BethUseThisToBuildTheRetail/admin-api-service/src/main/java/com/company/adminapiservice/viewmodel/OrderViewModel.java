@@ -1,13 +1,23 @@
 package com.company.adminapiservice.viewmodel;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Future;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
 public class OrderViewModel {
 
-    private int customerId;
+    @NotNull(message = "Please supply a value for customerId")
+    private Integer customerId;
+
+    @Future(message = "Cannot be a past date")
+    @NotNull(message = "Please provide a purchase date for order")
     private LocalDate purchaseDate;
+
+    @Valid
     private List<ProductToBuyViewModel> productsToBuy;
 
     private double orderTotal;
@@ -18,11 +28,11 @@ public class OrderViewModel {
     private InvoiceViewModel invoice;
 
     //getters and setters
-    public int getCustomerId() {
+    public Integer getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(int customerId) {
+    public void setCustomerId(Integer customerId) {
         this.customerId = customerId;
     }
 
@@ -74,19 +84,20 @@ public class OrderViewModel {
         this.invoice = invoice;
     }
 
+
     //equals and hashcode
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         OrderViewModel that = (OrderViewModel) o;
-        return getCustomerId() == that.getCustomerId() &&
-                Double.compare(that.getOrderTotal(), getOrderTotal()) == 0 &&
+        return Double.compare(that.getOrderTotal(), getOrderTotal()) == 0 &&
                 getPointsEarned() == that.getPointsEarned() &&
                 getTotalPoints() == that.getTotalPoints() &&
-                getPurchaseDate().equals(that.getPurchaseDate()) &&
-                getProductsToBuy().equals(that.getProductsToBuy()) &&
-                getInvoice().equals(that.getInvoice());
+                Objects.equals(getCustomerId(), that.getCustomerId()) &&
+                Objects.equals(getPurchaseDate(), that.getPurchaseDate()) &&
+                Objects.equals(getProductsToBuy(), that.getProductsToBuy()) &&
+                Objects.equals(getInvoice(), that.getInvoice());
     }
 
     @Override

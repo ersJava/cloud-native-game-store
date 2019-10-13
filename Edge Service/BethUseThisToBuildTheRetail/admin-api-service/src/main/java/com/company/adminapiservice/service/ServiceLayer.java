@@ -1,6 +1,9 @@
 package com.company.adminapiservice.service;
 
 import com.company.adminapiservice.exception.CustomerNotFoundException;
+import com.company.adminapiservice.exception.InvoiceNotFoundException;
+import com.company.adminapiservice.exception.OutOfStockException;
+import com.company.adminapiservice.exception.ProductNotFoundException;
 import com.company.adminapiservice.util.feign.*;
 import com.company.adminapiservice.viewmodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,23 +18,28 @@ import java.util.*;
 public class ServiceLayer {
 
     CustomerService customerService;
-    InventoyService inventoyService;
+    InventoryService inventoryService;
     InvoiceService invoiceService;
     LevelUpService levelUpService;
     ProductService productService;
 
     @Autowired
-    public ServiceLayer(CustomerService customerService, InventoyService inventoyService, InvoiceService invoiceService,
+    public ServiceLayer(CustomerService customerService, InventoryService inventoryService, InvoiceService invoiceService,
                         LevelUpService levelUpService, ProductService productService){
 
         this.customerService = customerService;
-        this.inventoyService = inventoyService;
+        this.inventoryService = inventoryService;
         this.invoiceService = invoiceService;
         this.levelUpService = levelUpService;
         this.productService = productService;
     }
 
-    //uri: /order
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////INVOICE METHODS///////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //uri: /invoices
+    //Create an Invoice
     @Transactional
     public OrderViewModel processOrder(OrderViewModel ovm){
 
@@ -49,10 +57,13 @@ public class ServiceLayer {
         productsToBuy = filterProductsToBuyList(productsToBuy);
 
         //List InvoiceITems
-        List<InvoiceItem> invoiceItemsList = new ArrayList<>();
+        List<InvoiceItemViewModel> invoiceItemsList = new ArrayList<>();
 
         //Order Total
         double total = 0;
+
+        //List that stores the Inventory register that have to be updated
+        List<InventoryViewModel> inventoriesToUpdate = new ArrayList<>();
 
         //Getting all the Inventory Rows for the productId
         for(int i = 0; i < productsToBuy.size(); i++){
@@ -61,31 +72,102 @@ public class ServiceLayer {
 
             int productId = product.getProductId();
 
+            //Checking that the product exist
+            try{
+                productService.getProduct(productId);
+            }catch (RuntimeException e){
+                throw new ProductNotFoundException("Cannot process your order, there is no Product associated with id number "+ productId+ " in the database!!");
+            }
+
             //Reading the product Price from the ProductService
             BigDecimal unitPrice = BigDecimal.valueOf(Double.valueOf(productService.getProduct(productId).getListPrice()));
 
             //Reading the Product in Stock from the InventoryService
-            List<InventoryViewModel> inventoryList = inventoyService.getAllInventoriesByProductId(product.getProductId());
+            List<InventoryViewModel> inventoryList = inventoryService.getAllInventoriesByProductId(product.getProductId());
 
             inventoryList = orderInventoryListByQuantity(inventoryList);
+
+            int totalInInventory = 0;
+
+            for (int i2 = 0; i2 < inventoryList.size(); i2++){
+                int quantityInInventory = inventoryList.get(i2).getQuantity();
+                totalInInventory = totalInInventory + quantityInInventory;
+            }
 
             int quantityToBuy = product.getQuantity();
 
             //Check if there is enough productsToBuy in the inventory.
-            List<InvoiceItem> invoiceItemsPerProduct = updateInventory(inventoryList, quantityToBuy);
+            if(quantityToBuy > totalInInventory){
+                if(totalInInventory == 0){
+                    throw new OutOfStockException("Sorry, we can not process your order the Product with the id "+product.getProductId() +" is out of stock!!");
+                }else{
+                    throw new OutOfStockException("Sorry, we can not process your order there is only "+ totalInInventory +" units of the Product with the id " + product.getProductId());
+                }
+            }
 
-            //Setting the Price and for every InvoiceItem
+            //List<InvoiceItemViewModel> invoiceItemsPerProduct = updateInventory(inventoryList, quantityToBuy);
+
+            List<InvoiceItemViewModel> invoiceItemsPerProduct = new ArrayList<>();
+
+            for(int i3 = 0; i3 < inventoryList.size(); i3++){
+
+                InventoryViewModel inventory = inventoryList.get(i3);
+                int quantityAvailablePerInventory = inventory.getQuantity();
+
+                //Create an InvoiceItem
+                InvoiceItemViewModel invoiceItem = new InvoiceItemViewModel();
+
+                if (quantityToBuy > quantityAvailablePerInventory) {
+
+                    quantityToBuy = quantityToBuy - quantityAvailablePerInventory;
+
+                    //If the quantityToBuy is larger than the quantity available, that means that is going to empty that Inventory register
+                    inventory.setQuantity(0);
+
+                    //Updating the inventory
+                    //inventoryService.updateInventory(inventory.getInventoryId(), inventory);
+                    inventoriesToUpdate.add(inventory);
+
+                    //Updating the invoiceItem
+                    invoiceItem.setQuantity(quantityAvailablePerInventory);
+                    invoiceItem.setInventoryId(inventory.getInventoryId());
+
+                    //Adding the invoice to the List
+                    invoiceItemsPerProduct.add(invoiceItem);
+
+                } else {
+
+                    inventory.setQuantity(quantityAvailablePerInventory - quantityToBuy);
+
+                    //updating the inventory
+                    //inventoryService.updateInventory(inventory.getInventoryId(), inventory);
+                    inventoriesToUpdate.add(inventory);
+
+                    //updating the invoiceItem
+                    invoiceItem.setQuantity(quantityToBuy);
+                    invoiceItem.setInventoryId(inventory.getInventoryId());
+
+                    //Adding the invoice to the List
+                    invoiceItemsPerProduct.add(invoiceItem);
+
+                    //to break the loop
+                    i3 = inventoryList.size();
+                }
+            }
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            //Setting the Price for every InvoiceItem
             invoiceItemsPerProduct.stream().forEach(invoiceItem -> invoiceItem.setUnitPrice(unitPrice));
 
             //Calculating the total of the Order
-            for (InvoiceItem invoiceItem : invoiceItemsPerProduct) {
+            for (InvoiceItemViewModel invoiceItem : invoiceItemsPerProduct) {
 
                 total = total + (invoiceItem.getQuantity() * invoiceItem.getUnitPrice().doubleValue());
 
                 //Adding each InvoiceItem inside the InvoiceItemsPerProduct to the List containing all InvoiceItems
                 invoiceItemsList.add(invoiceItem);
             }
-
         }
 
         //Setting the order total
@@ -114,28 +196,82 @@ public class ServiceLayer {
             ovm.setTotalPoints(0);
         }
 
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //Creating and saving the Invoice
-
         //Create a new Invoice
         InvoiceViewModel invoice = new InvoiceViewModel();
 
         invoice.setCustomerId(ovm.getCustomerId());
         invoice.setPurchaseDate(ovm.getPurchaseDate());
-        invoice.setInvoiceItems(invoiceItemsList);
+        invoice.setItemList(invoiceItemsList);
 
         //Creates an Invoice using the microService
-        invoice = invoiceService.createInvoice(invoice);
+        try{
+            invoice = invoiceService.createInvoice(invoice);
+        }catch (RuntimeException e){
+            throw new InvoiceNotFoundException(e.getMessage());
+        }
 
         //Adding the invoice to the purchase OrderViewModel
         ovm.setInvoice(invoice);
         ovm.setProductsToBuy(productsToBuy);
 
+
+        //Updating the Inventory
+        //IMPLEMENT HERE A QUEUE
+        for (InventoryViewModel inventory: inventoriesToUpdate) {
+            inventoryService.updateInventory(inventory.getInventoryId(), inventory);
+        }
+
         return ovm;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //////////////////////////////Helper methods for process and OrderViewModel\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    //Get all Invoice(s)
+    public List<InvoiceViewModel> getAllInvoices(){
+
+        try{
+            return invoiceService.getAllInvoices();
+        }catch (RuntimeException e){
+            throw new InvoiceNotFoundException("The database is empty!!! No Invoice(s) found in the Database");
+        }
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //uri: /invoices/{id}
+    //Get an Invoice for the Id
+    public InvoiceViewModel getInvoice(int id){
+
+        try{
+            return invoiceService.getInvoice(id);
+        }catch (RuntimeException e){
+            throw new InvoiceNotFoundException("No Invoice found in the Database for id " + id + "!");
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //Delete an Invoice
+    public void deleteInvoice(int id){
+        invoiceService.deleteInvoice(id);
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //uri: /invoices/customer/{customerId}
+    public List<InvoiceViewModel> getInvoicesByCustomerId(int customerId){
+
+        try{
+            return invoiceService.getInvoicesByCustomerId(customerId);
+        }catch (RuntimeException e){
+            throw new InvoiceNotFoundException("No Invoice(s) found for customer id " + customerId);
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////Helper methods for process an INVOICE\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     public List<ProductToBuyViewModel> filterProductsToBuyList(List<ProductToBuyViewModel> productList){
 
         List<ProductToBuyViewModel> filteredList = new ArrayList<>();
@@ -181,72 +317,6 @@ public class ServiceLayer {
         return filteredList;
     }
 
-    public List<InvoiceItem> updateInventory(List<InventoryViewModel> inventoryList, int quantityToBuy){
-
-        List<InvoiceItem> invoiceItemsToReturn = new ArrayList<>();
-
-        int totalInInventory = 0;
-
-        for (int i = 0; i < inventoryList.size(); i++){
-            int quantityInInventory = inventoryList.get(i).getQuantity();
-            totalInInventory = totalInInventory + quantityInInventory;
-        }
-
-        if(quantityToBuy > totalInInventory){
-            //throw new OutOfStockException();
-        }else{
-
-            for(int i = 0; i < inventoryList.size(); i++){
-                InventoryViewModel inventory = inventoryList.get(i);
-                int quantityAvailable = inventory.getQuantity();
-
-                //Create an InvoiceItem
-                InvoiceItem invoiceItem = new InvoiceItem();
-
-                if(quantityToBuy > quantityAvailable){
-
-
-
-                    int invoiceItemQuantity = quantityAvailable;
-
-                    quantityToBuy = quantityToBuy - quantityAvailable;
-
-                    //If the quantityToBuy is larger than the quantity available, that means that is going to empty that Inventory register
-                    inventory.setQuantity(0);
-
-                    //Updating the inventory
-                    inventoyService.updateInventory(inventory);  //Uncomment this
-
-                    //Updating the invoiceItem
-                    invoiceItem.setQuantity(invoiceItemQuantity);
-                    invoiceItem.setInventoryId(inventory.getInventoryId());
-
-                    //Adding the invoice to the List
-                    invoiceItemsToReturn.add(invoiceItem);
-
-                }else{
-
-                    inventory.setQuantity(quantityAvailable - quantityToBuy);
-
-                    //updating the inventory
-                    inventoyService.updateInventory(inventory);  //Uncomment this
-
-                    //updating the invoiceItem
-                    invoiceItem.setQuantity(quantityToBuy);
-                    invoiceItem.setInventoryId(inventory.getInventoryId());
-
-                    //Adding the invoice to the List
-                    invoiceItemsToReturn.add(invoiceItem);
-
-                    //to break the loop
-                    i = inventoryList.size();
-                }
-            }
-        }
-
-        return invoiceItemsToReturn;
-    }
-
     public List<InventoryViewModel> orderInventoryListByQuantity(List<InventoryViewModel> ivmList){
 
         List<InventoryViewModel> orderedList = new ArrayList<>();
@@ -266,6 +336,7 @@ public class ServiceLayer {
 
                 if(ivm.getQuantity() == quantityLargerToLower.get(x)){
                     orderedList.add(ivm);
+                    ivmList.remove(i);
                     x++;
                     i = -1;
                 }
@@ -276,3 +347,59 @@ public class ServiceLayer {
         return orderedList;
     }
 }
+
+//Update inventory and create InvoiceItems
+//    public List<InvoiceItemViewModel> updateInventory(List<InventoryViewModel> inventoryList, int quantityToBuy){
+//
+//        List<InvoiceItemViewModel> invoiceItemsToReturn = new ArrayList<>();
+//
+//        for(int i = 0; i < inventoryList.size(); i++){
+//
+//            InventoryViewModel inventory = inventoryList.get(i);
+//            int quantityAvailable = inventory.getQuantity();
+//
+//            //Create an InvoiceItem
+//            InvoiceItemViewModel invoiceItem = new InvoiceItemViewModel();
+//
+//            if (quantityToBuy > quantityAvailable) {
+//
+//
+//                int invoiceItemQuantity = quantityAvailable;
+//
+//                quantityToBuy = quantityToBuy - quantityAvailable;
+//
+//                //If the quantityToBuy is larger than the quantity available, that means that is going to empty that Inventory register
+//                inventory.setQuantity(0);
+//
+//                //Updating the inventory
+//                inventoryService.updateInventory(inventory.getInventoryId(), inventory);  //Uncomment this
+//
+//                //Updating the invoiceItem
+//                invoiceItem.setQuantity(invoiceItemQuantity);
+//                invoiceItem.setInventoryId(inventory.getInventoryId());
+//
+//                //Adding the invoice to the List
+//                invoiceItemsToReturn.add(invoiceItem);
+//
+//            } else {
+//
+//                inventory.setQuantity(quantityAvailable - quantityToBuy);
+//
+//                //updating the inventory
+//                inventoryService.updateInventory(inventory.getInventoryId(), inventory);  //Uncomment this
+//
+//                //updating the invoiceItem
+//                invoiceItem.setQuantity(quantityToBuy);
+//                invoiceItem.setInventoryId(inventory.getInventoryId());
+//
+//                //Adding the invoice to the List
+//                invoiceItemsToReturn.add(invoiceItem);
+//
+//                //to break the loop
+//                i = inventoryList.size();
+//            }
+//        }
+//
+//
+//        return invoiceItemsToReturn;
+//    }

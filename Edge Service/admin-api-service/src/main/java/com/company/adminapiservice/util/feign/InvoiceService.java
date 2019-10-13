@@ -1,9 +1,8 @@
 package com.company.adminapiservice.util.feign;
 
-import com.company.adminapiservice.viewmodel.InvoiceItem;
+import com.company.adminapiservice.viewmodel.InvoiceItemViewModel;
 import com.company.adminapiservice.viewmodel.InvoiceViewModel;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,6 +40,6 @@ public interface InvoiceService {
     //uri: /invoices/inventory/{inventoryId}
     //Get InvoiceItem(s) by inventoryId
     @RequestMapping(value = "invoices/inventory/{inventoryId}")
-    public List<InvoiceItem> getInvoiceItemsByInventoryId(@PathVariable("inventoryId") Integer inventoryId);
+    public List<InvoiceItemViewModel> getInvoiceItemsByInventoryId(@PathVariable("inventoryId") Integer inventoryId);
 
 }
