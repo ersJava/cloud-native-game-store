@@ -143,4 +143,14 @@ public class ControllerExceptionHandler {
         return responseEntity;
     }
 
+    @ExceptionHandler(value = {OutOfStockException.class})
+    @ResponseStatus( HttpStatus.FORBIDDEN)
+    public ResponseEntity<VndErrors> outOfStockException(OutOfStockException e, WebRequest request){
+
+        VndErrors error = new VndErrors(request.toString(), e.getMessage());
+
+        ResponseEntity<VndErrors> responseEntity = new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+        return responseEntity;
+    }
+
 }

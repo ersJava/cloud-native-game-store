@@ -75,9 +75,10 @@ public class ServiceLayerTest {
         //Calling object
         InvoiceViewModel invoiceC = new InvoiceViewModel();
 
+        invoiceC.setInvoiceId(null);
         invoiceC.setPurchaseDate(LocalDate.of(2019,12,13));
         invoiceC.setCustomerId(1);
-        invoiceC.setInvoiceItems(callingInvoiceItems);
+        invoiceC.setItemList(callingInvoiceItems);
 
         //////////////////////////////////////////////////////////////////
         //////////////////////////////////////////////////////////////////
@@ -115,7 +116,7 @@ public class ServiceLayerTest {
         invoice.setInvoiceId(1);
         invoice.setPurchaseDate(LocalDate.of(2019,12,13));
         invoice.setCustomerId(1);
-        invoice.setInvoiceItems(invoiceItems);
+        invoice.setItemList(invoiceItems);
 
         doReturn(invoice).when(invoiceService).createInvoice(invoiceC);
         doReturn(invoice).when(invoiceService).getInvoice(1);
@@ -337,7 +338,7 @@ public class ServiceLayerTest {
         invoice.setInvoiceId(1);
         invoice.setPurchaseDate(LocalDate.of(2019,12,13));
         invoice.setCustomerId(1);
-        invoice.setInvoiceItems(invoiceItems);
+        invoice.setItemList(invoiceItems);
 
         //Reading the Invoice from the Service
         InvoiceViewModel fromService = serviceLayer.getInvoice(invoice.getInvoiceId());
@@ -418,6 +419,12 @@ public class ServiceLayerTest {
         ivm4.setQuantity(15);
         ivm4.setProductId(5);
 
+        InventoryViewModel ivm5 = new InventoryViewModel();
+
+        ivm5.setInventoryId(5);
+        ivm5.setQuantity(15);
+        ivm5.setProductId(5);
+
         List<InventoryViewModel> inventoryViewModelList = new ArrayList<>();
 
         inventoryViewModelList.add(ivm1);
@@ -434,6 +441,14 @@ public class ServiceLayerTest {
         thirdList.add(ivm2);
         thirdList.add(ivm3);
         thirdList.add(ivm1);
+
+        List<InventoryViewModel> listFourth = new ArrayList<>();
+        listFourth.add(ivm2);
+        listFourth.add(ivm3);
+        listFourth.add(ivm4);
+        listFourth.add(ivm5);
+
+        List<InventoryViewModel> ordered5 = serviceLayer.orderInventoryListByQuantity(listFourth);
 
         List<InventoryViewModel> ordered3 = serviceLayer.orderInventoryListByQuantity(thirdList);
 
