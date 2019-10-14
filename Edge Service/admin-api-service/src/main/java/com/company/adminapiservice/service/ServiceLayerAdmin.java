@@ -34,7 +34,7 @@ public class ServiceLayerAdmin {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////CUSTOMER METHODS///////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //uri: /customers
+    //uri: /customerFrontEnd
     //Create a new Customer
     @Transactional
     public FrontEndCustomerViewModel createCustomer(FrontEndCustomerViewModel fecvm){
@@ -52,9 +52,15 @@ public class ServiceLayerAdmin {
 
                 LevelUpViewModel luvm = new LevelUpViewModel();
                 luvm.setCustomerId(cvm.getCustomerId());
+                luvm.setPoints(0); //modify this quantity if you want to create an account with points for a special promotion
                 luvm.setMemberDate(fecvm.getCreationDate());
 
-                luvm = levelUpService.createLevelUpAccount(luvm);
+                try{
+                    luvm = levelUpService.createLevelUpAccount(luvm);
+                }catch (RuntimeException f){
+                    throw new IllegalArgumentException(f.getMessage());
+                }
+
 
                 fecvm.setLevelUpAccount(luvm);
             }
@@ -130,19 +136,23 @@ public class ServiceLayerAdmin {
         //The deletion is going to be processed if the Customer does not have any related invoices
         try{
             invoiceService.getInvoicesByCustomerId(id);
-            count++;
+            count = 1;
         }catch (RuntimeException e){
             try{
+                //The deletion is going to be processed if the Customer does not have any related levelUp account
                 levelUpService.getLevelUpAccountByCustomerId(id);
-                count++;
-
+                count = 2;
             }catch (RuntimeException f){
                 customerService.deleteCustomer(id);
             }
         }
 
         if(count != 0){
-            throw new DeleteNotAllowedException("Impossible Deletion, there is a LevelUp Account associated with this Customer");
+            if(count == 1){
+                throw new DeleteNotAllowedException("Impossible Deletion, there are Invoice(s) associated with this Customer");
+            }else{
+                throw new DeleteNotAllowedException("Impossible Deletion, there is a LevelUp Account associated with this Customer");
+            }
         }
 
     }

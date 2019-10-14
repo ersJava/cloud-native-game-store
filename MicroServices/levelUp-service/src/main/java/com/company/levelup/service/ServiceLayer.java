@@ -37,9 +37,10 @@ public class ServiceLayer {
     public LevelUpViewModel saveLevelUp(LevelUpViewModel lvm) {
 
         //Added, verify first if the customerId have already an account, to avoid duplicates
-        LevelUpViewModel accountForCustomerId = findLevelUp(lvm.getCustomerId());
-
-        if(accountForCustomerId == null){
+        try{
+            LevelUpViewModel accountForCustomerId = getLevelUpByCustomerId(lvm.getCustomerId());
+            throw new LevelUpAccountExistException("Impossible Account creation, Customer have already a levelUp Account");
+        }catch (NotFoundException e){
             LevelUp levelUp = new LevelUp();
             levelUp.setCustomerId(lvm.getCustomerId());
             levelUp.setPoints(lvm.getPoints());
@@ -47,13 +48,8 @@ public class ServiceLayer {
             levelUp = dao.addLevelUp(levelUp);
 
             lvm.setLevelUpId(levelUp.getLevelUpId());
-
             return lvm;
-        }else{
-            throw new LevelUpAccountExistException("Impossible Account creation, Customer have already a levelUp Account");
         }
-
-
     }
 
     public List<LevelUpViewModel> findAllLevelUp() {
@@ -84,12 +80,13 @@ public class ServiceLayer {
             return buildViewModel(levelUp);
     }
 
+
     public void removeLevelUp(int id) {
 
-        LevelUp levelUp = dao.getLevelUp(id);
-
-        if (levelUp == null)
-            throw new NotFoundException(String.format("Level Up account could not be retrieved for id %s", id));
+//        LevelUp levelUp = dao.getLevelUp(id);
+//
+//        if (levelUp == null)
+//            throw new NotFoundException(String.format("Level Up account could not be retrieved for id %s", id));
 
         dao.deleteLevelUp(id);
     }

@@ -1,15 +1,17 @@
 package com.company.adminapiservice.service;
 
-import com.company.adminapiservice.exception.*;
+import com.company.adminapiservice.exception.CustomerNotFoundException;
+import com.company.adminapiservice.exception.InvoiceNotFoundException;
+import com.company.adminapiservice.exception.OutOfStockException;
+import com.company.adminapiservice.exception.ProductNotFoundException;
 import com.company.adminapiservice.util.feign.*;
 import com.company.adminapiservice.viewmodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.math.BigDecimal;
+import java.util.*;
 
 
 @Component
@@ -33,165 +35,199 @@ public class ServiceLayer {
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////CUSTOMER METHODS///////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //uri: /customers
-    //Create a new Customer
-    @Transactional
-    public CustomerViewModel createCustomer(CustomerViewModel cvm){
-
-        return customerService.newCustomer(cvm);
-    }
-
-    //Return All the Customer
-    public List<CustomerViewModel> getAllCustomers(){
-        try{
-            return customerService.getAllCustomers();
-        }catch (RuntimeException e){
-            throw new CustomerNotFoundException("The database is empty!!! No Customer(s) found in the Database");
-        }
-    }
-
-    //Update a Customer
-    @Transactional
-    public void updateCustomer(CustomerViewModel cvm){
-        try{
-            customerService.updateCustomer(cvm);
-        }catch (RuntimeException e){
-            throw new CustomerNotFoundException("Impossible Update, No Customer found in the database for id #" + cvm.getCustomerId() + " !");
-        }
-    }
-
-    //uri: /customer/{id}
-    //Get a Customer for Id
-    public CustomerViewModel getCustomer(int id){
-        try{
-            return customerService.getCustomer(id);
-        }catch (RuntimeException e){
-            throw new CustomerNotFoundException("No Customer found in the database for id #" + id + " !");
-        }
-    }
-
-    //Delete a Customer
-    public void deleteCustomer(int id){
-
-        int count = 0;
-
-        //The deletion is going to be processed if the Customer does not have any related invoices
-        try{
-            invoiceService.getInvoicesByCustomerId(id);
-            count++;
-        }catch (RuntimeException e){
-            try{
-                levelUpService.getLevelUpAccountByCustomerId(id);
-                count++;
-
-            }catch (RuntimeException f){
-                customerService.deleteCustomer(id);
-            }
-        }
-
-        if(count != 0){
-            throw new DeleteNotAllowedException("Impossible Deletion, there is LevelUp Account associated with this Customer");
-        }
-
-    }
-
-    //uri: /customer/findByLastName/{last_name}
-    public List<CustomerViewModel> getCustomersByLastName(String lastName){
-        try{
-            return customerService.getCustomersByLastName(lastName);
-        }catch (RuntimeException e){
-            throw new CustomerNotFoundException("No Customer(s) found with the lastName: " + lastName + "!");
-        }
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////INVENTORY METHODS//////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    //uri: /inventory
-    //Create new Inventory Register
-    @Transactional
-    public InventoryViewModel createInventory(InventoryViewModel ivm){
-
-        //Make sure that the product exists
-        try{
-            productService.getProduct(ivm.getProductId());
-        }catch (RuntimeException e){
-            throw new ProductNotFoundException("Creation of Inventory not Allowed, No Product found in the database for id #" +  ivm.getProductId()+ " !");
-        }
-
-        return inventoryService.createInventory(ivm);
-    }
-
-    //Get all inventories
-    public List<InventoryViewModel> getAllInventories(){
-
-        try{
-            return inventoryService.getAllInventories();
-        }catch (RuntimeException e){
-            throw new InventoryNotFoundException("The database is empty!!! No Inventory found in the Database");
-        }
-    }
-
-    //Update Inventory
-    @Transactional
-    public void updateInventory(int id, InventoryViewModel ivm){
-
-        try{
-            inventoryService.updateInventory(id,ivm);
-        }catch (RuntimeException e){
-            throw new InventoryNotFoundException("Impossible Update, No Inventory found in the Database for id " + id + "!");
-        }
-    }
-
-    //uri: inventory/{id}
-    //Get Inventory for id
-    public InventoryViewModel getInventory(int id){
-
-        try{
-            return inventoryService.getInventory(id);
-        }catch (RuntimeException e){
-            throw new InventoryNotFoundException("No Inventory found in the Database for id " + id + "!");
-        }
-    }
-
-    //Delete Inventory
-    public void deleteInventory(int id){
-        inventoryService.deleteInventory(id);
-    }
-
-    //uri: /inventory/byProductId/{id}
-    //Get all Inventories by productId
-    public List<InventoryViewModel> getAllInventoriesByProductId(int productId){
-
-        try{
-            return inventoryService.getAllInventoriesByProductId(productId);
-        }catch (RuntimeException e){
-            throw new InventoryNotFoundException("No inventories found for productId " + productId + " !");
-        }
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////INVOICE METHODS///////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //uri: /invoices
     //Create an Invoice
     @Transactional
-    public InvoiceViewModel createInvoice(InvoiceViewModel ivm){
+    public OrderViewModel processOrder(OrderViewModel ovm){
 
-        //Making sure that the Customer specified exist
+        //Making sure that the Customer exist
         try{
-            customerService.getCustomer(ivm.getCustomerId());
+            customerService.getCustomer(ovm.getCustomerId());
         }catch (RuntimeException e){
-            throw new CustomerNotFoundException("Creation of Invoice not Allowed, No Customer found in the database for id #" +  ivm.getCustomerId()+ " !");
+            throw new CustomerNotFoundException("No Customer found in the database for id #" + ovm.getCustomerId() + " !");
         }
 
-        return invoiceService.createInvoice(ivm);
+        //List to store the ProductsToBuy
+        List<ProductToBuyViewModel> productsToBuy = ovm.getProductsToBuy();
+
+        //List with uniques ProductsToBuy
+        productsToBuy = filterProductsToBuyList(productsToBuy);
+
+        //List InvoiceITems
+        List<InvoiceItemViewModel> invoiceItemsList = new ArrayList<>();
+
+        //Order Total
+        double total = 0;
+
+        //List that stores the Inventory register that have to be updated
+        List<InventoryViewModel> inventoriesToUpdate = new ArrayList<>();
+
+        //Getting all the Inventory Rows for the productId
+        for(int i = 0; i < productsToBuy.size(); i++){
+
+            ProductToBuyViewModel product = productsToBuy.get(i);
+
+            int productId = product.getProductId();
+
+            //Checking that the product exist
+            try{
+                productService.getProduct(productId);
+            }catch (RuntimeException e){
+                throw new ProductNotFoundException("Cannot process your order, there is no Product associated with id number "+ productId+ " in the database!!");
+            }
+
+            //Reading the product Price from the ProductService
+            BigDecimal unitPrice = BigDecimal.valueOf(Double.valueOf(productService.getProduct(productId).getListPrice()));
+
+            //Reading the Product in Stock from the InventoryService
+            List<InventoryViewModel> inventoryList = inventoryService.getAllInventoriesByProductId(product.getProductId());
+
+            inventoryList = orderInventoryListByQuantity(inventoryList);
+
+            int totalInInventory = 0;
+
+            for (int i2 = 0; i2 < inventoryList.size(); i2++){
+                int quantityInInventory = inventoryList.get(i2).getQuantity();
+                totalInInventory = totalInInventory + quantityInInventory;
+            }
+
+            int quantityToBuy = product.getQuantity();
+
+            //Check if there is enough productsToBuy in the inventory.
+            if(quantityToBuy > totalInInventory){
+                if(totalInInventory == 0){
+                    throw new OutOfStockException("Sorry, we can not process your order the Product with the id "+product.getProductId() +" is out of stock!!");
+                }else{
+                    throw new OutOfStockException("Sorry, we can not process your order there is only "+ totalInInventory +" units of the Product with the id " + product.getProductId());
+                }
+            }
+
+            //List<InvoiceItemViewModel> invoiceItemsPerProduct = updateInventory(inventoryList, quantityToBuy);
+
+            List<InvoiceItemViewModel> invoiceItemsPerProduct = new ArrayList<>();
+
+            for(int i3 = 0; i3 < inventoryList.size(); i3++){
+
+                InventoryViewModel inventory = inventoryList.get(i3);
+                int quantityAvailablePerInventory = inventory.getQuantity();
+
+                //Create an InvoiceItem
+                InvoiceItemViewModel invoiceItem = new InvoiceItemViewModel();
+
+                if (quantityToBuy > quantityAvailablePerInventory) {
+
+                    quantityToBuy = quantityToBuy - quantityAvailablePerInventory;
+
+                    //If the quantityToBuy is larger than the quantity available, that means that is going to empty that Inventory register
+                    inventory.setQuantity(0);
+
+                    //Updating the inventory
+                    //inventoryService.updateInventory(inventory.getInventoryId(), inventory);
+                    inventoriesToUpdate.add(inventory);
+
+                    //Updating the invoiceItem
+                    invoiceItem.setQuantity(quantityAvailablePerInventory);
+                    invoiceItem.setInventoryId(inventory.getInventoryId());
+
+                    //Adding the invoice to the List
+                    invoiceItemsPerProduct.add(invoiceItem);
+
+                } else {
+
+                    inventory.setQuantity(quantityAvailablePerInventory - quantityToBuy);
+
+                    //updating the inventory
+                    //inventoryService.updateInventory(inventory.getInventoryId(), inventory);
+                    inventoriesToUpdate.add(inventory);
+
+                    //updating the invoiceItem
+                    invoiceItem.setQuantity(quantityToBuy);
+                    invoiceItem.setInventoryId(inventory.getInventoryId());
+
+                    //Adding the invoice to the List
+                    invoiceItemsPerProduct.add(invoiceItem);
+
+                    //to break the loop
+                    i3 = inventoryList.size();
+                }
+            }
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            //Setting the Price for every InvoiceItem
+            invoiceItemsPerProduct.stream().forEach(invoiceItem -> invoiceItem.setUnitPrice(unitPrice));
+
+            //Calculating the total of the Order
+            for (InvoiceItemViewModel invoiceItem : invoiceItemsPerProduct) {
+
+                total = total + (invoiceItem.getQuantity() * invoiceItem.getUnitPrice().doubleValue());
+
+                //Adding each InvoiceItem inside the InvoiceItemsPerProduct to the List containing all InvoiceItems
+                invoiceItemsList.add(invoiceItem);
+            }
+        }
+
+        //Setting the order total
+        ovm.setOrderTotal(total);
+
+        //Calculating the points
+        int points = (int)(total / 50) * 10;
+
+        //Checking if the Customer have a LevelUp Account
+        try{
+            LevelUpViewModel levelUp = levelUpService.getLevelUpAccountByCustomerId(ovm.getCustomerId());
+
+            int existingPoints = levelUp.getPoints();
+
+            levelUp.setPoints(existingPoints + points);
+
+            //Updating the points for the Customer
+            levelUpService.updatePointsOnAccount(ovm.getCustomerId(),levelUp);
+
+            ovm.setPointsEarned(points);
+            ovm.setTotalPoints(existingPoints + points);
+
+        }catch (RuntimeException e){
+            //When the customer is not a member of the points program
+            ovm.setPointsEarned(0);
+            ovm.setTotalPoints(0);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //Creating and saving the Invoice
+        //Create a new Invoice
+        InvoiceViewModel invoice = new InvoiceViewModel();
+
+        invoice.setCustomerId(ovm.getCustomerId());
+        invoice.setPurchaseDate(ovm.getPurchaseDate());
+        invoice.setItemList(invoiceItemsList);
+
+        //Creates an Invoice using the microService
+        try{
+            invoice = invoiceService.createInvoice(invoice);
+        }catch (RuntimeException e){
+            throw new InvoiceNotFoundException(e.getMessage());
+        }
+
+        //Adding the invoice to the purchase OrderViewModel
+        ovm.setInvoice(invoice);
+        ovm.setProductsToBuy(productsToBuy);
+
+
+        //Updating the Inventory
+        //IMPLEMENT HERE A QUEUE
+        for (InventoryViewModel inventory: inventoriesToUpdate) {
+            inventoryService.updateInventory(inventory.getInventoryId(), inventory);
+        }
+
+        return ovm;
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Get all Invoice(s)
     public List<InvoiceViewModel> getAllInvoices(){
 
@@ -202,6 +238,7 @@ public class ServiceLayer {
         }
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //uri: /invoices/{id}
     //Get an Invoice for the Id
     public InvoiceViewModel getInvoice(int id){
@@ -213,182 +250,156 @@ public class ServiceLayer {
         }
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Delete an Invoice
     public void deleteInvoice(int id){
         invoiceService.deleteInvoice(id);
     }
 
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //uri: /invoices/customer/{customerId}
     public List<InvoiceViewModel> getInvoicesByCustomerId(int customerId){
 
         try{
             return invoiceService.getInvoicesByCustomerId(customerId);
         }catch (RuntimeException e){
-            throw new InvoiceNotFoundException("No invoices in the system found with customer id " + customerId);
+            throw new InvoiceNotFoundException("No Invoice(s) found for customer id " + customerId);
         }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////LEVELUP METHODS//////////////////////////////////////////////////////////////////
+    //////////////////////////////Helper methods for process an INVOICE\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    //uri: /levelup
-    //Create a LevelUp
-    @Transactional
-    public LevelUpViewModel createLevelUp(LevelUpViewModel lvm){
+    public List<ProductToBuyViewModel> filterProductsToBuyList(List<ProductToBuyViewModel> productList){
 
-        try{
-            customerService.getCustomer(lvm.getCustomerId());
-        }catch (RuntimeException e){
-            throw new CustomerNotFoundException("Creation of LevelUp not Allowed, No Customer found in the database for id #" +  lvm.getCustomerId()+ " !");
+        List<ProductToBuyViewModel> filteredList = new ArrayList<>();
+        for (int i = 0; i < productList.size(); i++) {
+            ProductToBuyViewModel product = productList.get(i);
+
+            ProductToBuyViewModel newProduct = new ProductToBuyViewModel();
+            newProduct.setProductId(product.getProductId());
+            newProduct.setQuantity(product.getQuantity());
+
+            filteredList.add(newProduct);
         }
 
-        return levelUpService.createLevelUpAccount(lvm);
-    }
+        //List with uniques inventoryId
+        Set<Integer> productId = new HashSet<>();
 
-    //Get All LevelUp Accounts
-    public List<LevelUpViewModel> getAllLevelUpAccounts(){
-        try{
-            return levelUpService.getAllLevelUpAccounts();
-        }catch (RuntimeException e){
-            throw new LevelUpNotFoundException("The database is empty!!! No LevelUp Account(s) found in the Database");
-        }
-    }
+        for(int i = 0; i < filteredList.size(); i++){
 
-    //uri: /levelup/{id}
-    //Get a levelUp Account
-    public LevelUpViewModel getLevelUpAccount(int id){
-        try{
-            return levelUpService.getLevelUpAccount(id);
-        }catch (RuntimeException e){
-            throw new LevelUpNotFoundException("No levelUp Account found in the Database for id " + id + "!");
-        }
-    }
+            ProductToBuyViewModel product = filteredList.get(i);
+            Integer inId = product.getProductId();
 
-    //Delete a levelUp Account
-    public void deleteLevelUpAccount(int id){
-        levelUpService.deleteLevelUpAccount(id);
-    }
+            if(productId.add(inId) == false){
 
-    //uri: /levelup/points/{customerId}
-    //Update points in account for a Customer
-    @Transactional
-    public void updatePointsInAccount(int customerId, LevelUpViewModel lvm){
+                int quantity = product.getQuantity();
 
-        try{
-            levelUpService.updatePointsOnAccount(customerId, lvm);
-        }catch (RuntimeException e){
-            throw new LevelUpNotFoundException("Impossible Update, No LevelUp Account found in the Database for id " + lvm.getLevelUpId() + "!");
-        }
-    }
+                for(int x = 0; x < filteredList.size(); x++){
 
-    //uri: /levelup/customer/{customerId}
-    //Get a LevelUp Account for the customerId
-    public LevelUpViewModel getLevelUpAccountByCustomerId(int customerId){
-        try{
-            return levelUpService.getLevelUpAccountByCustomerId(customerId);
-        }catch (RuntimeException e){
-            throw new LevelUpNotFoundException("No LevelUp Account in the system found with customer id " + customerId);
-        }
-    }
+                    ProductToBuyViewModel product2 = filteredList.get(x);
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////PRODUCT METHODS///////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                    if(product2.getProductId() == inId){
 
-    //uri: /product
-    //Create a new product
-    @Transactional
-    public ProductViewModel createProduct(ProductViewModel pvm){
-        return productService.newProduct(pvm);
-    }
+                        product2.setQuantity(product2.getQuantity() + quantity);
+                        filteredList.remove(i);
 
-    //Get all Products
-    public List<ProductViewModel> getAllProducts(){
-        try{
-            return productService.getAllProducts();
-        }catch (RuntimeException e){
-            throw new ProductNotFoundException("The database is empty!!! No Product(s) found in the Database");
-        }
-    }
-
-    //Update a Product
-    public void updateProduct(ProductViewModel pvm){
-        try{
-            productService.updateProduct(pvm);
-        }catch (RuntimeException e){
-            throw new ProductNotFoundException("Impossible Update, No LevelUp Account found in the Database for id " + pvm.getProductId() + "!");
-        }
-    }
-
-    //uri: /product/{id}
-    //Get a Product
-    public ProductViewModel getProduct(int id){
-        try{
-            return productService.getProduct(id);
-        }catch (RuntimeException e){
-            throw new ProductNotFoundException("No Product found in the Database for id " + id + "!");
-        }
-    }
-
-    //Delete a Product
-    public void deleteProduct(int id){
-
-        int impossibleDelete = 0;
-        boolean inStock = false;
-
-        try{
-            //Get all the Inventory registers related to the product
-            List<InventoryViewModel> inventoryListForProduct = inventoryService.getAllInventoriesByProductId(id);
-
-            //List that stores the Inventories with a quantity of 0
-            List<InventoryViewModel> emptyInventoryForProduct;
-
-            emptyInventoryForProduct = inventoryListForProduct.stream().filter(inventoryViewModel -> inventoryViewModel.getQuantity() == 0).collect(Collectors.toList());
-
-            //List with the id of the Inventories
-            List<Integer> idOfInventories = new ArrayList<>();
-
-            //Get all the id(s) of the inventories related to the product
-            inventoryListForProduct.stream().forEach(inventoryViewModel -> idOfInventories.add(inventoryViewModel.getInventoryId()));
-
-            if(emptyInventoryForProduct.size() == inventoryListForProduct.size()){
-                int count = 0;
-
-                for (int inventoryId : idOfInventories) {
-                    try {
-                        invoiceService.getInvoiceItemsByInventoryId(inventoryId);
-                    } catch (RuntimeException g) {
-                        count++;
+                        //To break the loop
+                        x = filteredList.size();
                     }
                 }
-
-                if(count != inventoryListForProduct.size()){
-                    impossibleDelete++;
-                }else{
-                    productService.deleteProduct(id);
-                }
-
-            }else{
-                impossibleDelete++;
-                inStock = true;
+                i = -1;
+                productId.clear();
             }
-
-        }catch (RuntimeException e){
-            productService.deleteProduct(id);
         }
-
-
-        if(impossibleDelete != 0){
-            if(inStock){
-                throw new DeleteNotAllowedException("Impossible Deletion, there is Products still in inventory");
-            }else{
-                throw new DeleteNotAllowedException("Impossible Deletion, this products have associated InvoiceItems");
-            }
-
-        }
-
+        return filteredList;
     }
 
+    public List<InventoryViewModel> orderInventoryListByQuantity(List<InventoryViewModel> ivmList){
+
+        List<InventoryViewModel> orderedList = new ArrayList<>();
+
+        List<Integer> quantityLargerToLower = new ArrayList<>();
+
+        ivmList.stream().forEach(inventoryViewModel -> quantityLargerToLower.add(inventoryViewModel.getQuantity()));
+
+        quantityLargerToLower.sort(Comparator.reverseOrder());
+
+        int x = 0;
+
+        for(int i = 0; i < ivmList.size(); i++){
+            InventoryViewModel ivm = ivmList.get(i);
+
+            if(x < quantityLargerToLower.size()){
+
+                if(ivm.getQuantity() == quantityLargerToLower.get(x)){
+                    orderedList.add(ivm);
+                    ivmList.remove(i);
+                    x++;
+                    i = -1;
+                }
+            }else{
+                i = ivmList.size();
+            }
+        }
+        return orderedList;
+    }
 }
+
+//Update inventory and create InvoiceItems
+//    public List<InvoiceItemViewModel> updateInventory(List<InventoryViewModel> inventoryList, int quantityToBuy){
+//
+//        List<InvoiceItemViewModel> invoiceItemsToReturn = new ArrayList<>();
+//
+//        for(int i = 0; i < inventoryList.size(); i++){
+//
+//            InventoryViewModel inventory = inventoryList.get(i);
+//            int quantityAvailable = inventory.getQuantity();
+//
+//            //Create an InvoiceItem
+//            InvoiceItemViewModel invoiceItem = new InvoiceItemViewModel();
+//
+//            if (quantityToBuy > quantityAvailable) {
+//
+//
+//                int invoiceItemQuantity = quantityAvailable;
+//
+//                quantityToBuy = quantityToBuy - quantityAvailable;
+//
+//                //If the quantityToBuy is larger than the quantity available, that means that is going to empty that Inventory register
+//                inventory.setQuantity(0);
+//
+//                //Updating the inventory
+//                inventoryService.updateInventory(inventory.getInventoryId(), inventory);  //Uncomment this
+//
+//                //Updating the invoiceItem
+//                invoiceItem.setQuantity(invoiceItemQuantity);
+//                invoiceItem.setInventoryId(inventory.getInventoryId());
+//
+//                //Adding the invoice to the List
+//                invoiceItemsToReturn.add(invoiceItem);
+//
+//            } else {
+//
+//                inventory.setQuantity(quantityAvailable - quantityToBuy);
+//
+//                //updating the inventory
+//                inventoryService.updateInventory(inventory.getInventoryId(), inventory);  //Uncomment this
+//
+//                //updating the invoiceItem
+//                invoiceItem.setQuantity(quantityToBuy);
+//                invoiceItem.setInventoryId(inventory.getInventoryId());
+//
+//                //Adding the invoice to the List
+//                invoiceItemsToReturn.add(invoiceItem);
+//
+//                //to break the loop
+//                i = inventoryList.size();
+//            }
+//        }
+//
+//
+//        return invoiceItemsToReturn;
+//    }
