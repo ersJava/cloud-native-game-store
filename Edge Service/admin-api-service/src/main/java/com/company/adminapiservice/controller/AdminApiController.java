@@ -5,6 +5,10 @@ import com.company.adminapiservice.service.ServiceLayer;
 import com.company.adminapiservice.service.ServiceLayerAdmin;
 import com.company.adminapiservice.viewmodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +18,7 @@ import java.util.List;
 
 @RestController
 @RefreshScope
+@CacheConfig(cacheNames = {"adminController"})
 public class AdminApiController {
 
     @Autowired
@@ -47,6 +52,7 @@ public class AdminApiController {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //uri: /customer
     //Create a Customer receiving a CustomerViewModel
+    @CachePut(key = "#result.getCustomerId()")
     @RequestMapping(value = "/customer", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public CustomerViewModel createCostumer(@RequestBody @Valid CustomerViewModel cvm) {
@@ -64,6 +70,7 @@ public class AdminApiController {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //uri: /customer{id}
+    @Cacheable
     @RequestMapping(value = "/customer/{id}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     public CustomerViewModel getCostumer(@PathVariable int id) {
@@ -72,6 +79,7 @@ public class AdminApiController {
     }
 
     //Update CustomerViewModel
+    @CacheEvict(key = "#cvm.getCustomerId()")
     @RequestMapping(value = "/customer/{id}", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.OK)
     public void updateCostumer(@PathVariable int id, @RequestBody @Valid CustomerViewModel cvm) {
@@ -84,6 +92,7 @@ public class AdminApiController {
     }
 
     //Delete CustomerViewModel
+    @CacheEvict
     @RequestMapping(value = "/customer/{id}", method = RequestMethod.DELETE)
     @ResponseStatus(HttpStatus.OK)
     public void deleteCostumer(@PathVariable int id) {

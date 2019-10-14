@@ -1,9 +1,6 @@
 package com.company.adminapiservice.service;
 
-import com.company.adminapiservice.exception.CustomerNotFoundException;
-import com.company.adminapiservice.exception.InvoiceNotFoundException;
-import com.company.adminapiservice.exception.OutOfStockException;
-import com.company.adminapiservice.exception.ProductNotFoundException;
+import com.company.adminapiservice.exception.*;
 import com.company.adminapiservice.util.feign.*;
 import com.company.adminapiservice.viewmodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -176,56 +173,120 @@ public class ServiceLayer {
         //Calculating the points
         int points = (int)(total / 50) * 10;
 
-        //Checking if the Customer have a LevelUp Account
-        try{
-            LevelUpViewModel levelUp = levelUpService.getLevelUpAccountByCustomerId(ovm.getCustomerId());
+        int existingPoints = 0;
 
-            int existingPoints = levelUp.getPoints();
+        //Variables for store error message from the microservices
+        String serviceCause = "";
+        String errorMessage;
 
-            levelUp.setPoints(existingPoints + points);
+        LevelUpViewModel levelUp = new LevelUpViewModel();
 
-            //Updating the points for the Customer
-            levelUpService.updatePointsOnAccount(ovm.getCustomerId(),levelUp);
-
-            ovm.setPointsEarned(points);
-            ovm.setTotalPoints(existingPoints + points);
-
-        }catch (RuntimeException e){
-            //When the customer is not a member of the points program
-            ovm.setPointsEarned(0);
-            ovm.setTotalPoints(0);
-        }
-
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        //Creating and saving the Invoice
-        //Create a new Invoice
         InvoiceViewModel invoice = new InvoiceViewModel();
 
-        invoice.setCustomerId(ovm.getCustomerId());
-        invoice.setPurchaseDate(ovm.getPurchaseDate());
-        invoice.setItemList(invoiceItemsList);
-
-        //Creates an Invoice using the microService
         try{
-            invoice = invoiceService.createInvoice(invoice);
-        }catch (RuntimeException e){
-            throw new InvoiceNotFoundException(e.getMessage());
+            //Checking if the Customer have a LevelUp Account
+            try{
+                levelUp = levelUpService.getLevelUpAccountByCustomerId(ovm.getCustomerId());
+
+                existingPoints = levelUp.getPoints();
+
+                levelUp.setPoints(existingPoints + points);
+
+                ovm.setPointsEarned(points);
+                ovm.setTotalPoints(existingPoints + points);
+
+            }catch (RuntimeException e){
+                //When the customer is not a member of the points program
+                ovm.setPointsEarned(0);
+                ovm.setTotalPoints(0);
+            }
+
+            //Updating the points for the Customer in his account
+            if(levelUp != null){
+                try{
+                    levelUpService.updatePointsOnAccount(ovm.getCustomerId(),levelUp);
+                }catch (RuntimeException e){
+                    serviceCause = "levelupService";
+                    throw new IllegalArgumentException("Impossible to process order, error : " + e.getMessage()+ " happen when trying to update the LevelUp Account of the user");
+                }
+            }
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            //Creating and saving the Invoice
+            //Create a new Invoice
+            invoice.setInvoiceId(null);
+            invoice.setCustomerId(ovm.getCustomerId());
+            invoice.setPurchaseDate(ovm.getPurchaseDate());
+            invoice.setItemList(invoiceItemsList);
+
+            //Creates an Invoice using the microService
+            try{
+                invoice = invoiceService.createInvoice(invoice);
+            }catch (RuntimeException e){
+                serviceCause = "invoiceService";
+                throw new IllegalArgumentException("Impossible to process order, error : " + e.getMessage()+ " happen when trying to create an Invoice register for the order");
+            }
+
+            //Adding the invoice to the purchase OrderViewModel
+            ovm.setInvoice(invoice);
+            ovm.setProductsToBuy(productsToBuy);
+
+            //Updating the Inventory
+            //IMPLEMENT HERE A QUEUE
+            for (InventoryViewModel inventory: inventoriesToUpdate) {
+                try{
+                    inventoryService.updateInventory(inventory.getInventoryId(), inventory);
+                }catch (RuntimeException e){
+
+                    serviceCause = "inventoryService";
+                    throw new IllegalArgumentException("Impossible to process order, error : " + e.getMessage()+ " happen when trying to update the Inventory register for the order");
+                }
+            }
+
+            return ovm;
+
+        }catch (IllegalArgumentException f){
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            //This is going to be executed if any of the operations for update the points in a levelUp account, create an Invoice,
+            //or update the inventory fail.
+
+            switch (serviceCause){
+                case "levelupService":
+                    //Roll back
+                    //This is the first communication error to happen with a service, so there is nothing to be change/
+                    break;
+
+                case "invoiceService":
+                    //Roll back
+                    //when this error happen the points for the purchase have been already updated so is necessary to reverse that back
+                    if(levelUp != null){
+                        levelUp.setPoints(existingPoints);
+                        levelUpService.updatePointsOnAccount(ovm.getCustomerId(),levelUp);
+                    }
+                    break;
+
+                case "inventoryService":
+                    //Roll back
+                    //when this error happen the points in the LevelUpAccount have been updated and the Invoice created, is necessary to reverse
+                    //back those two operations
+
+                    //Deleting the just created Invoice
+                    invoiceService.deleteInvoice(invoice.getInvoiceId());
+
+                    //Updating the levelUp account with the previous points
+                    if(levelUp != null){
+                        levelUp.setPoints(existingPoints);
+                        levelUpService.updatePointsOnAccount(ovm.getCustomerId(),levelUp);
+                    }
+                    break;
+            }
+            errorMessage = f.getMessage();
+            throw new OrderProcessFailException(errorMessage);
         }
-
-        //Adding the invoice to the purchase OrderViewModel
-        ovm.setInvoice(invoice);
-        ovm.setProductsToBuy(productsToBuy);
-
-
-        //Updating the Inventory
-        //IMPLEMENT HERE A QUEUE
-        for (InventoryViewModel inventory: inventoriesToUpdate) {
-            inventoryService.updateInventory(inventory.getInventoryId(), inventory);
-        }
-
-        return ovm;
     }
+
+
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Get all Invoice(s)

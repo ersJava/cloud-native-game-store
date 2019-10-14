@@ -153,4 +153,14 @@ public class ControllerExceptionHandler {
         return responseEntity;
     }
 
+    @ExceptionHandler(value = {OrderProcessFailException.class})
+    @ResponseStatus( HttpStatus.FORBIDDEN)
+    public ResponseEntity<VndErrors> orderProcessFailException(OrderProcessFailException e, WebRequest request){
+
+        VndErrors error = new VndErrors(request.toString(), e.getMessage());
+
+        ResponseEntity<VndErrors> responseEntity = new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+        return responseEntity;
+    }
+
 }

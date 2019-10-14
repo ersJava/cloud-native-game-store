@@ -50,6 +50,7 @@ public class ServiceLayerAdminCustomerTest {
         LevelUpViewModel luvmC = new LevelUpViewModel();
 
         luvmC.setCustomerId(1);
+        luvmC.setPoints(0);
         luvmC.setMemberDate(LocalDate.of(2019,10,11));
 
         doReturn(luvm).when(levelUpService).createLevelUpAccount(luvmC);
