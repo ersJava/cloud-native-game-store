@@ -1,22 +1,41 @@
 package com.company.adminapiservice.viewmodel;
 
+import javax.validation.constraints.*;
 import java.util.Objects;
 
 public class CustomerViewModel {
 
     private int customerId;
 
+    @NotBlank(message = "firstName is required!")
+    @Size(max = 50, message = "firstName can not be longer than 50 characters")
     private String firstName;
+
+    @NotBlank(message = "lastName is required!")
+    @Size(max = 50, message = "lastName can not be longer than 50 characters")
     private String lastName;
+
+    @NotBlank(message = "street is required!")
+    @Size(max = 50, message = "street can not be longer than 50 characters")
     private String street;
+
+    @NotBlank(message = "city is required!")
+    @Size(max = 50, message = "city can not be longer than 50 characters")
     private String city;
+
+    @NotBlank(message = "zipcode is required!")
+    @Size(min = 5, max = 5, message = "zipcode must be 5 integer positive numbers")
+    @Pattern(regexp = "^[0-9]*$", message = "zipcode must be 5 integer positive numbers")
     private String zip;
+
+    @NotBlank(message = "email is required!")
+    @Size(max = 75, message = "email can not be longer than 75 characters")
+    @Email
     private String email;
+
+    @NotBlank(message = "phone is required!")
+    @Size(max = 20, message = "phone can not be longer than 20 characters")
     private String phone;
-
-    private String creationDate;
-
-    private LevelUpViewModel levelUpAccount;
 
     //getters and setters
     public int getCustomerId() {
@@ -83,22 +102,6 @@ public class CustomerViewModel {
         this.phone = phone;
     }
 
-    public String getCreationDate() {
-        return creationDate;
-    }
-
-    public void setCreationDate(String creationDate) {
-        this.creationDate = creationDate;
-    }
-
-    public LevelUpViewModel getLevelUpAccount() {
-        return levelUpAccount;
-    }
-
-    public void setLevelUpAccount(LevelUpViewModel levelUpAccount) {
-        this.levelUpAccount = levelUpAccount;
-    }
-
     //equals and hashcode
     @Override
     public boolean equals(Object o) {
@@ -112,13 +115,11 @@ public class CustomerViewModel {
                 getCity().equals(that.getCity()) &&
                 getZip().equals(that.getZip()) &&
                 getEmail().equals(that.getEmail()) &&
-                getPhone().equals(that.getPhone()) &&
-                getCreationDate().equals(that.getCreationDate()) &&
-                getLevelUpAccount().equals(that.getLevelUpAccount());
+                getPhone().equals(that.getPhone());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getCustomerId(), getFirstName(), getLastName(), getStreet(), getCity(), getZip(), getEmail(), getPhone(), getCreationDate(), getLevelUpAccount());
+        return Objects.hash(getCustomerId(), getFirstName(), getLastName(), getStreet(), getCity(), getZip(), getEmail(), getPhone());
     }
 }

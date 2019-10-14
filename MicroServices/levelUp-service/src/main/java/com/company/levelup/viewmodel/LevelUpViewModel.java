@@ -12,7 +12,7 @@ public class LevelUpViewModel {
     @NotNull(message = "Please supply a value for Customer ID")
     private int customerId;
 
-    @NotNull(message = "Please supply a value. Add '0' for purchases not eligible for points")
+    //@NotNull(message = "Please supply a value. Add '0' for purchases not eligible for points")
     private int points;
 
     @Future(message = "Cannot be a past date")
