@@ -62,6 +62,7 @@ public class InvoiceItemViewModel {
     }
 
     //equals and hashcode
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

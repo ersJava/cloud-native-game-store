@@ -85,7 +85,7 @@ public class ServiceLayer {
             item.setInvoiceId(viewModel.getInvoiceId());
         });
 
-        viewModel.setItemList(fromDatabase);
+        viewModel.setItemList(itemList);
 
         return viewModel;
     }

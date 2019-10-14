@@ -112,6 +112,7 @@ public class ServiceLayerAdmin {
         try{
             fecvm.setLevelUpAccount(levelUpService.getLevelUpAccountByCustomerId(cvm.getCustomerId()));
             fecvm.setCreationDate(fecvm.getLevelUpAccount().getMemberDate());
+            fecvm.setJoinToLevelUp(true);
         }catch (RuntimeException e){
             fecvm.setLevelUpAccount(null);
         }

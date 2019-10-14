@@ -1,5 +1,6 @@
 package com.company.adminapiservice.service;
 
+import com.company.adminapiservice.exception.OrderProcessFailException;
 import com.company.adminapiservice.util.feign.*;
 import com.company.adminapiservice.viewmodel.*;
 import org.junit.Before;
@@ -46,22 +47,22 @@ public class ServiceLayerTest {
 
         //Setting up the InvoiceItems list for the Calling Object
         InvoiceItemViewModel invoiceItem1C = new InvoiceItemViewModel();
-        invoiceItem1C.setInvoiceItemId(0);
-        invoiceItem1C.setInvoiceId(0);
+        invoiceItem1C.setInvoiceItemId(null);
+        invoiceItem1C.setInvoiceId(null);
         invoiceItem1C.setInventoryId(3);
         invoiceItem1C.setQuantity(3);
         invoiceItem1C.setUnitPrice(new BigDecimal("200.23"));
 
         InvoiceItemViewModel invoiceItem2C = new InvoiceItemViewModel();
-        invoiceItem2C.setInvoiceItemId(0);
-        invoiceItem2C.setInvoiceId(0);
+        invoiceItem2C.setInvoiceItemId(null);
+        invoiceItem2C.setInvoiceId(null);
         invoiceItem2C.setInventoryId(1);
         invoiceItem2C.setQuantity(2);
         invoiceItem2C.setUnitPrice(new BigDecimal("200.23"));
 
         InvoiceItemViewModel invoiceItem3C = new InvoiceItemViewModel();
-        invoiceItem3C.setInvoiceItemId(0);
-        invoiceItem3C.setInvoiceId(0);
+        invoiceItem3C.setInvoiceItemId(null);
+        invoiceItem3C.setInvoiceId(null);
         invoiceItem3C.setInventoryId(4);
         invoiceItem3C.setQuantity(2);
         invoiceItem3C.setUnitPrice(new BigDecimal("300.54"));
@@ -121,6 +122,11 @@ public class ServiceLayerTest {
         doReturn(invoice).when(invoiceService).createInvoice(invoiceC);
         doReturn(invoice).when(invoiceService).getInvoice(1);
 
+        //Testing an error in invoiceService, uncomment this and comment the line above
+        //doThrow(new RuntimeException()).when(invoiceService).createInvoice(invoiceC);
+
+        //doReturn(invoice).when(invoiceService).getInvoice(1);
+
         //Mock for getAllInvoices
         InvoiceViewModel invoice25 = new InvoiceViewModel();
 
@@ -170,6 +176,9 @@ public class ServiceLayerTest {
         doReturn(levelUp).when(levelUpService).getLevelUpAccountByCustomerId(1);
 
         doNothing().when(levelUpService).updatePointsOnAccount(1,levelUpUpdated);
+
+        //Testing a communication error with the client, uncomment this and comment the line above
+        //doThrow(new RuntimeException()).when(levelUpService).updatePointsOnAccount(1,levelUpUpdated);
 
         //doThrow(new RuntimeException()).when(levelUpService).getLevelUpAccountByCustomerId(1);
 
@@ -268,9 +277,16 @@ public class ServiceLayerTest {
 
 
 
-        doNothing().when(inventoryService).updateInventory(inventory3Updated.getInventoryId(), inventory3Updated);
-        doNothing().when(inventoryService).updateInventory(inventory4Updated.getInventoryId(), inventory4Updated);
-        doNothing().when(inventoryService).updateInventory(inventory1Updated.getInventoryId(), inventory1Updated);
+//        doNothing().when(inventoryService).updateInventory(inventory3Updated.getInventoryId(), inventory3Updated);
+//        doNothing().when(inventoryService).updateInventory(inventory4Updated.getInventoryId(), inventory4Updated);
+//        doNothing().when(inventoryService).updateInventory(inventory1Updated.getInventoryId(), inventory1Updated);
+
+        //Test an error in the service, uncomment this and comment the three lines above
+        doThrow(new RuntimeException()).when(inventoryService).updateInventory(inventory3Updated.getInventoryId(), inventory3Updated);
+        doThrow(new RuntimeException()).when(inventoryService).updateInventory(inventory4Updated.getInventoryId(), inventory4Updated);
+        doThrow(new RuntimeException()).when(inventoryService).updateInventory(inventory1Updated.getInventoryId(), inventory1Updated);
+
+
 
     }
 
@@ -299,7 +315,15 @@ public class ServiceLayerTest {
         ovm.setPurchaseDate(LocalDate.of(2019,12,13));
         ovm.setProductsToBuy(productsList);
 
-        ovm = serviceLayer.processOrder(ovm);
+        try{
+            ovm = serviceLayer.processOrder(ovm);
+        }catch (OrderProcessFailException o){
+            System.out.println(o.getMessage());
+            assertEquals(1,1);
+        }
+
+        assertEquals(1,1);
+
     }
 
     @Test
