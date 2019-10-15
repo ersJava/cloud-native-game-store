@@ -14,6 +14,9 @@ import java.util.List;
 @FeignClient("invoice-service")
 public interface InvoiceClient {
 
+    @RequestMapping(value = "/invoices/hello", method = RequestMethod.GET)
+    String hello();
+
     @RequestMapping(value = "/invoices", method = RequestMethod.POST)
     InvoiceViewModel createInvoice(@RequestBody @Valid InvoiceViewModel invoice);
 

@@ -19,6 +19,17 @@ public class LevelUpViewModel {
     @NotNull(message = "Please provide a membership start date")
     private LocalDate memberDate;
 
+    public LevelUpViewModel(int levelUpId, @NotNull(message = "Please supply a value for Customer ID") int customerId, @NotNull(message = "Please supply a value. Add '0' for purchases not eligible for points") int points, @Future(message = "Cannot be a past date") @NotNull(message = "Please provide a membership start date") LocalDate memberDate) {
+        this.levelUpId = levelUpId;
+        this.customerId = customerId;
+        this.points = points;
+        this.memberDate = memberDate;
+    }
+
+    public LevelUpViewModel() {
+
+    }
+
     public int getLevelUpId() {
         return levelUpId;
     }
@@ -65,5 +76,15 @@ public class LevelUpViewModel {
     @Override
     public int hashCode() {
         return Objects.hash(getLevelUpId(), getCustomerId(), getPoints(), getMemberDate());
+    }
+
+    @Override
+    public String toString() {
+        return "LevelUpViewModel{" +
+                "levelUpId=" + levelUpId +
+                ", customerId=" + customerId +
+                ", points=" + points +
+                ", memberDate=" + memberDate +
+                '}';
     }
 }

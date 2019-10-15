@@ -1,22 +1,26 @@
-package com.company.retailapiservice.viewmodel;
+package com.company.adminapiservice.viewmodel;
 
+import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Objects;
 
 public class InvoiceItemViewModel {
 
-    private Integer  invoiceItemId;
-    private Integer  invoiceId;
+    private Integer invoiceItemId;
 
-    @NotNull(message = "Please supply an inventory ID")
-    private Integer  inventoryId;
+    private Integer invoiceId;
 
-    @NotNull(message = "Please supply a quantity for item")
-    private Integer  quantity;
+    @NotNull(message = "Please supply an inventoryId")
+    private Integer inventoryId;
 
+    @NotNull(message = "Please supply a quantity for the item")
+    private Integer quantity;
+
+    @Digits(integer = 7, fraction = 2)
     private BigDecimal unitPrice;
 
+    //getters and setters
     public Integer getInvoiceItemId() {
         return invoiceItemId;
     }
@@ -57,6 +61,7 @@ public class InvoiceItemViewModel {
         this.unitPrice = unitPrice;
     }
 
+    //equals and hashcode
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

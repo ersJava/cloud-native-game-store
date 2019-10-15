@@ -11,9 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
 @Component
-public class ServiceLayer {
+public class ServiceLayerAdmin {
 
     CustomerService customerService;
     InventoryService inventoryService;
@@ -22,7 +21,7 @@ public class ServiceLayer {
     ProductService productService;
 
     @Autowired
-    public ServiceLayer(CustomerService customerService, InventoryService inventoryService, InvoiceService invoiceService,
+    public ServiceLayerAdmin(CustomerService customerService, InventoryService inventoryService, InvoiceService invoiceService,
                         LevelUpService levelUpService, ProductService productService){
 
         this.customerService = customerService;
@@ -38,8 +37,35 @@ public class ServiceLayer {
     //uri: /customers
     //Create a new Customer
     @Transactional
-    public CustomerViewModel createCustomer(CustomerViewModel cvm){
+    public FrontEndCustomerViewModel createCustomer(FrontEndCustomerViewModel fecvm){
 
+        CustomerViewModel cvm = fecvm.getCustomerViewModel();
+
+        cvm = customerService.newCustomer(cvm);
+
+        fecvm.setCustomerViewModel(cvm);
+
+        if(fecvm.isJoinToLevelUp()){
+            try{
+                levelUpService.getLevelUpAccountByCustomerId(cvm.getCustomerId());
+            }catch (RuntimeException e){
+
+                LevelUpViewModel luvm = new LevelUpViewModel();
+                luvm.setCustomerId(cvm.getCustomerId());
+                luvm.setMemberDate(fecvm.getCreationDate());
+
+                luvm = levelUpService.createLevelUpAccount(luvm);
+
+                fecvm.setLevelUpAccount(luvm);
+            }
+        }
+
+        return fecvm;
+    }
+
+    //Overloaded method for just creating a Customer
+    @Transactional
+    public CustomerViewModel createCustomer(CustomerViewModel cvm){
         return customerService.newCustomer(cvm);
     }
 
@@ -63,7 +89,31 @@ public class ServiceLayer {
     }
 
     //uri: /customer/{id}
-    //Get a Customer for Id
+    //Get a FrontEndCustomer for Id
+    public FrontEndCustomerViewModel getCustomerFrontEnd(int id){
+
+        FrontEndCustomerViewModel fecvm = new FrontEndCustomerViewModel();
+
+        CustomerViewModel cvm;
+
+        try{
+             cvm = customerService.getCustomer(id);
+             fecvm.setCustomerViewModel(cvm);
+        }catch (RuntimeException e){
+            throw new CustomerNotFoundException("No Customer found in the database for id #" + id + " !");
+        }
+
+        try{
+            fecvm.setLevelUpAccount(levelUpService.getLevelUpAccountByCustomerId(cvm.getCustomerId()));
+            fecvm.setCreationDate(fecvm.getLevelUpAccount().getMemberDate());
+        }catch (RuntimeException e){
+            fecvm.setLevelUpAccount(null);
+        }
+
+        return fecvm;
+    }
+
+    //Get CustomerViewModel
     public CustomerViewModel getCustomer(int id){
         try{
             return customerService.getCustomer(id);
@@ -92,7 +142,7 @@ public class ServiceLayer {
         }
 
         if(count != 0){
-            throw new DeleteNotAllowedException("Impossible Deletion, there is LevelUp Account associated with this Customer");
+            throw new DeleteNotAllowedException("Impossible Deletion, there is a LevelUp Account associated with this Customer");
         }
 
     }
@@ -159,7 +209,15 @@ public class ServiceLayer {
 
     //Delete Inventory
     public void deleteInventory(int id){
-        inventoryService.deleteInventory(id);
+
+        //Check if there is no InvoiceItems related to the Inventory register
+        List<InvoiceItemViewModel> invoiceItemsForInventory = invoiceService.getInvoiceItemsByInventoryId(id);
+
+        if(invoiceItemsForInventory.size() == 0){
+            inventoryService.deleteInventory(id);
+        }else{
+            throw new DeleteNotAllowedException("Impossible Deletion, this Inventory register have associated InvoiceItems");
+        }
     }
 
     //uri: /inventory/byProductId/{id}
@@ -170,62 +228,6 @@ public class ServiceLayer {
             return inventoryService.getAllInventoriesByProductId(productId);
         }catch (RuntimeException e){
             throw new InventoryNotFoundException("No inventories found for productId " + productId + " !");
-        }
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////INVOICE METHODS///////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    //uri: /invoices
-    //Create an Invoice
-    @Transactional
-    public InvoiceViewModel createInvoice(InvoiceViewModel ivm){
-
-        //Making sure that the Customer specified exist
-        try{
-            customerService.getCustomer(ivm.getCustomerId());
-        }catch (RuntimeException e){
-            throw new CustomerNotFoundException("Creation of Invoice not Allowed, No Customer found in the database for id #" +  ivm.getCustomerId()+ " !");
-        }
-
-        return invoiceService.createInvoice(ivm);
-    }
-
-    //Get all Invoice(s)
-    public List<InvoiceViewModel> getAllInvoices(){
-
-        try{
-            return invoiceService.getAllInvoices();
-        }catch (RuntimeException e){
-            throw new InvoiceNotFoundException("The database is empty!!! No Invoice(s) found in the Database");
-        }
-    }
-
-    //uri: /invoices/{id}
-    //Get an Invoice for the Id
-    public InvoiceViewModel getInvoice(int id){
-
-        try{
-            return invoiceService.getInvoice(id);
-        }catch (RuntimeException e){
-            throw new InvoiceNotFoundException("No Invoice found in the Database for id " + id + "!");
-        }
-    }
-
-    //Delete an Invoice
-    public void deleteInvoice(int id){
-        invoiceService.deleteInvoice(id);
-    }
-
-
-    //uri: /invoices/customer/{customerId}
-    public List<InvoiceViewModel> getInvoicesByCustomerId(int customerId){
-
-        try{
-            return invoiceService.getInvoicesByCustomerId(customerId);
-        }catch (RuntimeException e){
-            throw new InvoiceNotFoundException("No invoices in the system found with customer id " + customerId);
         }
     }
 
@@ -244,7 +246,13 @@ public class ServiceLayer {
             throw new CustomerNotFoundException("Creation of LevelUp not Allowed, No Customer found in the database for id #" +  lvm.getCustomerId()+ " !");
         }
 
-        return levelUpService.createLevelUpAccount(lvm);
+        try{
+            lvm = levelUpService.createLevelUpAccount(lvm);
+        }catch (RuntimeException e){
+            throw new LevelUpAccountExistException("Impossible Account creation, Customer have already a levelUp Account");
+        }
+
+        return lvm;
     }
 
     //Get All LevelUp Accounts
@@ -289,7 +297,7 @@ public class ServiceLayer {
         try{
             return levelUpService.getLevelUpAccountByCustomerId(customerId);
         }catch (RuntimeException e){
-            throw new LevelUpNotFoundException("No LevelUp Account in the system found with customer id " + customerId);
+            throw new LevelUpNotFoundException("No LevelUp Account in the system found for customer id " + customerId);
         }
     }
 

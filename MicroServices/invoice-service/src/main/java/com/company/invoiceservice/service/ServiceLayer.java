@@ -29,6 +29,21 @@ public class ServiceLayer {
     }
 
 
+    // ***** still need to write test for this
+    public InvoiceItemViewModel saveItem(InvoiceItemViewModel itemViewModel) {
+
+        InvoiceItem item = new InvoiceItem();
+        item.setInvoiceId(itemViewModel.getInvoiceId());
+        item.setInventoryId(itemViewModel.getInventoryId());
+        item.setQuantity(itemViewModel.getQuantity());
+        item.setUnitPrice(itemViewModel.getUnitPrice());
+        item = invoiceItemDao.addInvoiceItem(item);
+        itemViewModel.setInvoiceItemId(item.getInvoiceItemId());
+
+        return itemViewModel;
+
+    }
+
     private InvoiceItemViewModel buildItemViewModel(InvoiceItem item) {
 
         InvoiceItemViewModel ivm = new InvoiceItemViewModel();
@@ -74,6 +89,7 @@ public class ServiceLayer {
         List<InvoiceItemViewModel> itemList = viewModel.getItemList();
 
         itemList.stream().forEach(item->
+
         {
             InvoiceItem invoiceItem = new InvoiceItem();
             invoiceItem.setInvoiceId(viewModel.getInvoiceId());
@@ -83,9 +99,8 @@ public class ServiceLayer {
             invoiceItem= invoiceItemDao.addInvoiceItem(invoiceItem);
             item.setInvoiceItemId(invoiceItem.getInvoiceItemId());
             item.setInvoiceId(viewModel.getInvoiceId());
-        });
 
-        viewModel.setItemList(itemList);
+        });
 
         return viewModel;
     }

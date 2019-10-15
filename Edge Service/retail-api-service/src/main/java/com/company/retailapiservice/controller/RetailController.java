@@ -5,16 +5,21 @@ import com.company.retailapiservice.viewmodel.InvoiceViewModel;
 import com.company.retailapiservice.viewmodel.OrderForm;
 import com.company.retailapiservice.viewmodel.ProductViewModel;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RefreshScope
 public class RetailController {
 
     @Autowired
     private ServiceLayer serviceLayer;
 
+    public RetailController(ServiceLayer serviceLayer) {
+        this.serviceLayer = serviceLayer;
+    }
 
     @RequestMapping(value = "/invoice", method = RequestMethod.POST)
     public OrderForm submitInvoice(@RequestBody OrderForm orderForm) {

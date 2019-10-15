@@ -130,9 +130,9 @@ public class ServiceLayerTest {
 
         doReturn(updateItem).when(invoiceItemDao).addInvoiceItem(updateItem1);
 
+        // list of items to be returned with id for update
         List<InvoiceItem> listUpdate = new ArrayList<>();
         listUpdate.add(updateItem);
-
         doReturn(listUpdate).when(invoiceItemDao).getItemsByInvoiceId(2);
 
     }

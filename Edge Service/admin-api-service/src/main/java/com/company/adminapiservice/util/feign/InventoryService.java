@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import java.util.List;
 
 @FeignClient(name = "inventory-service")
-public interface InventoyService {
+public interface InventoryService {
 
     //uri: /inventory
     //Create inventory registry

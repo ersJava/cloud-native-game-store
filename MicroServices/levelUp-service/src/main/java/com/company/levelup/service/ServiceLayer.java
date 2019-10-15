@@ -1,6 +1,7 @@
 package com.company.levelup.service;
 
 import com.company.levelup.dao.LevelUpDao;
+import com.company.levelup.exception.LevelUpAccountExistException;
 import com.company.levelup.exception.NotFoundException;
 import com.company.levelup.model.LevelUp;
 import com.company.levelup.viewmodel.LevelUpViewModel;
@@ -35,15 +36,24 @@ public class ServiceLayer {
     @Transactional
     public LevelUpViewModel saveLevelUp(LevelUpViewModel lvm) {
 
-        LevelUp levelUp = new LevelUp();
-        levelUp.setCustomerId(lvm.getCustomerId());
-        levelUp.setPoints(lvm.getPoints());
-        levelUp.setMemberDate(lvm.getMemberDate());
-        levelUp = dao.addLevelUp(levelUp);
+        //Added, verify first if the customerId have already an account, to avoid duplicates
+        LevelUpViewModel accountForCustomerId = findLevelUp(lvm.getCustomerId());
 
-        lvm.setLevelUpId(levelUp.getLevelUpId());
+        if(accountForCustomerId == null){
+            LevelUp levelUp = new LevelUp();
+            levelUp.setCustomerId(lvm.getCustomerId());
+            levelUp.setPoints(lvm.getPoints());
+            levelUp.setMemberDate(lvm.getMemberDate());
+            levelUp = dao.addLevelUp(levelUp);
 
-        return lvm;
+            lvm.setLevelUpId(levelUp.getLevelUpId());
+
+            return lvm;
+        }else{
+            throw new LevelUpAccountExistException("Impossible Account creation, Customer have already a levelUp Account");
+        }
+
+
     }
 
     public List<LevelUpViewModel> findAllLevelUp() {

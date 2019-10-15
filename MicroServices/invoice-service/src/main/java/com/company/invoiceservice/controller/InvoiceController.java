@@ -19,6 +19,15 @@ public class InvoiceController {
     @Autowired
     private ServiceLayer serviceLayer;
 
+    // Read all
+    @GetMapping("/hello")
+    @ResponseStatus(HttpStatus.OK)
+    public String hello() {
+
+        return "Are you thereeeeee?!!?!??!";
+    }
+
+
     // Create
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -70,14 +79,14 @@ public class InvoiceController {
         return serviceLayer.findInvoicesByCustomerId(customerId);
     }
 
-    // Create Item - used only to build Invoice
-//    @PostMapping("/item")
-//    @ResponseStatus(HttpStatus.CREATED)
-//    public InvoiceItemViewModel createItem(@RequestBody @Valid InvoiceItemViewModel item) {
-//
-//        return serviceLayer.saveItem(item);
-//    }
-  
+     // Create Item - used only to build Invoice in edge service
+    @PostMapping("/item")
+    @ResponseStatus(HttpStatus.CREATED)
+    public InvoiceItemViewModel createItem(@RequestBody @Valid InvoiceItemViewModel item) {
+
+        return serviceLayer.saveItem(item);
+    }
+
     //Get Invoice Items by inventoryId
     @GetMapping("/inventory/{inventoryId}")
     @ResponseStatus(HttpStatus.OK)

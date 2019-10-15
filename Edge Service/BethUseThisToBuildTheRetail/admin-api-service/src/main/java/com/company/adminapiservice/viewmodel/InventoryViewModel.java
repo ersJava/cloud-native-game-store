@@ -1,13 +1,20 @@
 package com.company.adminapiservice.viewmodel;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
 public class InventoryViewModel {
 
     private int inventoryId;
 
-    private int productId;
-    private int quantity;
+    @NotNull(message = "Please supply a productId")
+    @Min(value = 1, message = "productId must be a positive integer number")
+    private Integer productId;
+
+    @NotNull(message = "Please supply an Integer number for quantity")
+    @Min(value = 0, message = "quantity for inventory must be a positive number or 0")
+    private Integer quantity;
 
     //getters and setters
     public int getInventoryId() {
@@ -18,19 +25,19 @@ public class InventoryViewModel {
         this.inventoryId = inventoryId;
     }
 
-    public int getProductId() {
+    public Integer getProductId() {
         return productId;
     }
 
-    public void setProductId(int productId) {
+    public void setProductId(Integer productId) {
         this.productId = productId;
     }
 
-    public int getQuantity() {
+    public Integer getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 
@@ -41,8 +48,8 @@ public class InventoryViewModel {
         if (o == null || getClass() != o.getClass()) return false;
         InventoryViewModel that = (InventoryViewModel) o;
         return getInventoryId() == that.getInventoryId() &&
-                getProductId() == that.getProductId() &&
-                getQuantity() == that.getQuantity();
+                Objects.equals(getProductId(), that.getProductId()) &&
+                Objects.equals(getQuantity(), that.getQuantity());
     }
 
     @Override
