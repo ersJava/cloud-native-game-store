@@ -3,10 +3,20 @@ package com.company.adminapiservice.util.feign;
 import com.company.adminapiservice.viewmodel.InvoiceItemViewModel;
 import com.company.adminapiservice.viewmodel.InvoiceViewModel;
 import org.springframework.cloud.openfeign.FeignClient;
+<<<<<<< HEAD
+<<<<<<< HEAD
+import org.springframework.web.bind.annotation.*;
+=======
+=======
+>>>>>>> f00fc299981692406efd94cca8a90917049f7e46
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+<<<<<<< HEAD
+>>>>>>> f00fc299981692406efd94cca8a90917049f7e46
+=======
+>>>>>>> f00fc299981692406efd94cca8a90917049f7e46
 
 import java.util.List;
 

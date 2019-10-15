@@ -12,7 +12,15 @@ public class InvoiceViewModel {
     private Integer customerId;
     private LocalDate purchaseDate;
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+    private List<InvoiceItemViewModel> invoiceItems;
+=======
     private List<InvoiceItemViewModel> itemList;
+>>>>>>> f00fc299981692406efd94cca8a90917049f7e46
+=======
+    private List<InvoiceItemViewModel> itemList;
+>>>>>>> f00fc299981692406efd94cca8a90917049f7e46
 
     //getters and setters
     public Integer getInvoiceId() {
@@ -39,12 +47,30 @@ public class InvoiceViewModel {
         this.purchaseDate = purchaseDate;
     }
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+    public List<InvoiceItemViewModel> getInvoiceItems() {
+        return invoiceItems;
+    }
+
+    public void setInvoiceItems(List<InvoiceItemViewModel> invoiceItems) {
+        this.invoiceItems = invoiceItems;
+=======
     public List<InvoiceItemViewModel> getItemList() {
         return itemList;
     }
 
     public void setItemList(List<InvoiceItemViewModel> itemList) {
         this.itemList = itemList;
+>>>>>>> f00fc299981692406efd94cca8a90917049f7e46
+=======
+    public List<InvoiceItemViewModel> getItemList() {
+        return itemList;
+    }
+
+    public void setItemList(List<InvoiceItemViewModel> itemList) {
+        this.itemList = itemList;
+>>>>>>> f00fc299981692406efd94cca8a90917049f7e46
     }
 
     //equals and hashcode

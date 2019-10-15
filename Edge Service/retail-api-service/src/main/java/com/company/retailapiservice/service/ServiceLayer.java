@@ -2,6 +2,7 @@ package com.company.retailapiservice.service;
 
 import com.company.retailapiservice.exception.CustomerNotFoundException;
 import com.company.retailapiservice.exception.InventoryNotFoundException;
+import com.company.retailapiservice.exception.InvoiceNotFoundException;
 import com.company.retailapiservice.exception.QuantityNotAvailableException;
 import com.company.retailapiservice.util.feign.*;
 import com.company.retailapiservice.viewmodel.*;
@@ -39,46 +40,47 @@ public class ServiceLayer {
             throw new CustomerNotFoundException(String.format("No Customer found in the database for id # %s", orderForm.getCustomerId()));
 
             // creates an InvoiceViewModel with the OrderForm information from requestBody input, then creating IVM in invoice client
-            InvoiceViewModel ivm = new InvoiceViewModel();
-            ivm.setCustomerId(orderForm.getCustomerId());
-            ivm.setPurchaseDate(orderForm.getPurchaseDate());
-            ivm = invoiceClient.createInvoice(ivm);
-            orderForm.setInvoiceId(ivm.getInvoiceId());
+            InvoiceViewModel invoice = new InvoiceViewModel();
+            invoice.setCustomerId(orderForm.getCustomerId());
+            invoice.setPurchaseDate(orderForm.getPurchaseDate());
+            invoice.setItemList(orderForm.getItemList());
+            orderForm.setInvoiceId(invoice.getInvoiceId());
 
             // puts all InvoiceItems from orderForm input in a list to check if inventory items exist and available
             List<InvoiceItemViewModel> list = orderForm.getItemList();
 
             Double total = 0.0;
 
-            list.forEach(itemFromOrder -> {
+            list.forEach(item -> {
 
-                InventoryViewModel checkInventory = inventoryClient.getInventory(itemFromOrder.getInventoryId());
+                // Retrieving inventory by item input by inventory ID
+                InventoryViewModel checkInventory;
 
-                // check if inventory id exist
-                if (checkInventory == null)
-                    throw new InventoryNotFoundException(String.format("Inventory not found in the system with inventory id %s", itemFromOrder.getInventoryId()));
+                try {
+                    // Retrieving inventory by item input by inventory ID
+                   checkInventory = inventoryClient.getInventory(item.getInventoryId());
+                } catch (Exception e) {
+                    throw new InventoryNotFoundException(String.format("Inventory not found in the system with inventory id %s", item.getInventoryId()));
+                }
 
-                // if yes, then check if quantity if available
-                if (checkInventory.getQuantity() < itemFromOrder.getQuantity())
-                    throw new QuantityNotAvailableException(String.format("Quantity not available for inventory item # %s", itemFromOrder.getInventoryId()));
+                // if yes, then check if quantity is available
+                if (checkInventory.getQuantity() < item.getQuantity())
+                    throw new QuantityNotAvailableException(String.format("Quantity not available for inventory item # %s", item.getInventoryId()));
 
                 // update quantity in database
-                checkInventory.setQuantity(checkInventory.getQuantity() - itemFromOrder.getQuantity());
+                checkInventory.setQuantity(checkInventory.getQuantity() - item.getQuantity());
                 inventoryClient.updateInventory(checkInventory.getInventoryId(), checkInventory);
 
-                // if yes, get list_price from product table by product
+                // Creating a new ItemViewModel to send to Client to store item input so we can return with ID
+               // if quantity is available we get list_price from product table by product ID on Inventory table
                 ProductViewModel product = productClient.getProduct(checkInventory.getProductId());
-                itemFromOrder.setUnitPrice(new BigDecimal(product.getListPrice()));
-
-                // setting invoiceId to Item from Invoice
-                itemFromOrder.setInvoiceId(orderForm.getInvoiceId());
-                // sending orderForm item to invoice client to save to database and to generate item id
-                invoiceClient.createItem(itemFromOrder);
+                item.setUnitPrice(new BigDecimal(product.getListPrice()));
 
             });
 
         // do calculation and add to total
             for(InvoiceItemViewModel i : list) {
+
                 BigDecimal price = i.getUnitPrice();
                 Integer quantity = i.getQuantity();
                 Double priceAsDouble = price.doubleValue();
@@ -92,8 +94,13 @@ public class ServiceLayer {
             // set ItemList with prices and ids now
             orderForm.setItemList(list);
 
+            invoice = invoiceClient.createInvoice(invoice);
+
             // set total
             orderForm.setOrderTotal(new BigDecimal(total));
+
+            // set id
+            orderForm.setInvoiceId(invoice.getInvoiceId());
 
             // Add Level Up points to Customer Level Up Account
         orderForm.setLevelUpPointsEarned(getLevelUpPointsForOrder(new BigDecimal(total), orderForm.getCustomerId()));
@@ -103,7 +110,6 @@ public class ServiceLayer {
         }
 
         // Helper Methods for Order Form
-
     private int getLevelUpPointsForOrder(BigDecimal orderTotal, int customerId) {
 
         // calculate the total of points earned for order
@@ -120,6 +126,57 @@ public class ServiceLayer {
 
         return totalPoints;
 
+    }
+
+    // - - - - - - - - Invoice client methods - - - - - - - -
+    InvoiceViewModel addInvoice(InvoiceViewModel invoiceViewModel) {
+
+        try {
+            customerClient.getCustomer(invoiceViewModel.getCustomerId());
+        } catch (Exception e) {
+            throw new CustomerNotFoundException(String.format("No Customer found in the database for id # %s", invoiceViewModel.getCustomerId()));
+        }
+
+        List<InvoiceItemViewModel> list = invoiceViewModel.getItemList();
+
+        list.forEach(item -> {
+
+            // Retrieving inventory by item input by inventory ID
+            InventoryViewModel checkInventory = inventoryClient.getInventory(item.getInventoryId());
+
+            // Retrieving inventory by item input by inventory ID
+            if (checkInventory == null)
+                throw new InventoryNotFoundException(String.format("Inventory not found in the system with inventory id %s", item.getInventoryId()));
+
+            if (checkInventory.getQuantity() < item.getQuantity())
+                throw new QuantityNotAvailableException(String.format("Quantity not available for inventory item # %s", item.getInventoryId()));
+
+            // update quantity in database
+            checkInventory.setQuantity(checkInventory.getQuantity() - item.getQuantity());
+            inventoryClient.updateInventory(checkInventory.getInventoryId(), checkInventory);
+
+            ProductViewModel product = productClient.getProduct(checkInventory.getProductId());
+            item.setUnitPrice(new BigDecimal(product.getListPrice()));
+                });
+
+        // this list now has checked the inventory for available
+        // quantity and has retrieved the price from the product table
+        invoiceViewModel.setItemList(list);
+
+        // now we can save with all the information and get back an InvoiceViewModel with ids
+        invoiceViewModel = invoiceClient.createInvoice(invoiceViewModel);
+
+        return invoiceViewModel;
+    }
+
+    InvoiceViewModel findInvoice(Integer id) {
+
+        InvoiceViewModel ivm = invoiceClient.getInvoice(id);
+
+        if(ivm == null)
+            throw new InvoiceNotFoundException(String.format("Invoice could not be retrieved for id %s", id));
+        else
+            return ivm;
     }
 }
 

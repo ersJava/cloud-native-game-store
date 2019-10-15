@@ -67,4 +67,13 @@ public class LevelUpViewModel {
         return Objects.hash(getLevelUpId(), getCustomerId(), getPoints(), getMemberDate());
     }
 
+    @Override
+    public String toString() {
+        return "LevelUpViewModel{" +
+                "levelUpId=" + levelUpId +
+                ", customerId=" + customerId +
+                ", points=" + points +
+                ", memberDate=" + memberDate +
+                '}';
+    }
 }

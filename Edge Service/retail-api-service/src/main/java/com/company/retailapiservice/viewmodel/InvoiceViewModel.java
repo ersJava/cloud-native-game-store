@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class InvoiceViewModel {
+
     private Integer invoiceId;
 
     @NotNull(message = "Please supply a value for Customer ID")
@@ -60,15 +61,14 @@ public class InvoiceViewModel {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         InvoiceViewModel that = (InvoiceViewModel) o;
-        return getInvoiceId().equals(that.getInvoiceId()) &&
-                getCustomerId().equals(that.getCustomerId()) &&
-                getPurchaseDate().equals(that.getPurchaseDate()) &&
-                getItemList().equals(that.getItemList());
+        return Objects.equals(getInvoiceId(), that.getInvoiceId()) &&
+                Objects.equals(getCustomerId(), that.getCustomerId()) &&
+                Objects.equals(getPurchaseDate(), that.getPurchaseDate()) &&
+                Objects.equals(getItemList(), that.getItemList());
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(getInvoiceId(), getCustomerId(), getPurchaseDate(), getItemList());
     }
-
 }

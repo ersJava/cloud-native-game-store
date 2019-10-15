@@ -62,11 +62,11 @@ public class InvoiceItemViewModel {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         InvoiceItemViewModel that = (InvoiceItemViewModel) o;
-        return getInvoiceItemId().equals(that.getInvoiceItemId()) &&
-                getInvoiceId().equals(that.getInvoiceId()) &&
-                getInventoryId().equals(that.getInventoryId()) &&
-                getQuantity().equals(that.getQuantity()) &&
-                getUnitPrice().equals(that.getUnitPrice());
+        return Objects.equals(getInvoiceItemId(), that.getInvoiceItemId()) &&
+                Objects.equals(getInvoiceId(), that.getInvoiceId()) &&
+                Objects.equals(getInventoryId(), that.getInventoryId()) &&
+                Objects.equals(getQuantity(), that.getQuantity()) &&
+                Objects.equals(getUnitPrice(), that.getUnitPrice());
     }
 
     @Override
