@@ -52,6 +52,7 @@ public class ServiceLayer {
 
         //List with uniques ProductsToBuy
         productsToBuy = filterProductsToBuyList(productsToBuy);
+<<<<<<< HEAD
 
         //List InvoiceITems
         List<InvoiceItemViewModel> invoiceItemsList = new ArrayList<>();
@@ -99,10 +100,47 @@ public class ServiceLayer {
             int totalInInventory = 0;
 >>>>>>> f00fc299981692406efd94cca8a90917049f7e46
 
+=======
+
+        //List InvoiceITems
+        List<InvoiceItemViewModel> invoiceItemsList = new ArrayList<>();
+
+        //Order Total
+        double total = 0;
+
+        //List that stores the Inventory register that have to be updated
+        List<InventoryViewModel> inventoriesToUpdate = new ArrayList<>();
+
+        //Getting all the Inventory Rows for the productId
+        for(int i = 0; i < productsToBuy.size(); i++){
+
+            ProductToBuyViewModel product = productsToBuy.get(i);
+
+            int productId = product.getProductId();
+
+            //Checking that the product exist
+            try{
+                productService.getProduct(productId);
+            }catch (RuntimeException e){
+                throw new ProductNotFoundException("Cannot process your order, there is no Product associated with id number "+ productId+ " in the database!!");
+            }
+
+            //Reading the product Price from the ProductService
+            BigDecimal unitPrice = BigDecimal.valueOf(Double.valueOf(productService.getProduct(productId).getListPrice()));
+
+            //Reading the Product in Stock from the InventoryService
+            List<InventoryViewModel> inventoryList = inventoryService.getAllInventoriesByProductId(product.getProductId());
+
+            inventoryList = orderInventoryListByQuantity(inventoryList);
+
+            int totalInInventory = 0;
+
+>>>>>>> f00fc299981692406efd94cca8a90917049f7e46
             for (int i2 = 0; i2 < inventoryList.size(); i2++){
                 int quantityInInventory = inventoryList.get(i2).getQuantity();
                 totalInInventory = totalInInventory + quantityInInventory;
             }
+<<<<<<< HEAD
 <<<<<<< HEAD
         }
 
@@ -135,10 +173,30 @@ public class ServiceLayer {
 =======
             for(int i3 = 0; i3 < inventoryList.size(); i3++){
 >>>>>>> f00fc299981692406efd94cca8a90917049f7e46
+=======
+
+            int quantityToBuy = product.getQuantity();
+
+            //Check if there is enough productsToBuy in the inventory.
+            if(quantityToBuy > totalInInventory){
+                if(totalInInventory == 0){
+                    throw new OutOfStockException("Sorry, we can not process your order the Product with the id "+product.getProductId() +" is out of stock!!");
+                }else{
+                    throw new OutOfStockException("Sorry, we can not process your order there is only "+ totalInInventory +" units of the Product with the id " + product.getProductId());
+                }
+            }
+
+            //List<InvoiceItemViewModel> invoiceItemsPerProduct = updateInventory(inventoryList, quantityToBuy);
+
+            List<InvoiceItemViewModel> invoiceItemsPerProduct = new ArrayList<>();
+
+            for(int i3 = 0; i3 < inventoryList.size(); i3++){
+>>>>>>> f00fc299981692406efd94cca8a90917049f7e46
 
                 InventoryViewModel inventory = inventoryList.get(i3);
                 int quantityAvailablePerInventory = inventory.getQuantity();
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         try{
             return inventoryService.getAllInventories();
@@ -163,10 +221,19 @@ public class ServiceLayer {
 =======
                     quantityToBuy = quantityToBuy - quantityAvailablePerInventory;
 >>>>>>> f00fc299981692406efd94cca8a90917049f7e46
+=======
+                //Create an InvoiceItem
+                InvoiceItemViewModel invoiceItem = new InvoiceItemViewModel();
+
+                if (quantityToBuy > quantityAvailablePerInventory) {
+
+                    quantityToBuy = quantityToBuy - quantityAvailablePerInventory;
+>>>>>>> f00fc299981692406efd94cca8a90917049f7e46
 
                     //If the quantityToBuy is larger than the quantity available, that means that is going to empty that Inventory register
                     inventory.setQuantity(0);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         try{
             return inventoryService.getInventory(id);
@@ -198,6 +265,19 @@ public class ServiceLayer {
         }catch (RuntimeException e){
             throw new InventoryNotFoundException("No inventories found for productId " + productId + " !");
 =======
+=======
+                    //Updating the inventory
+                    //inventoryService.updateInventory(inventory.getInventoryId(), inventory);
+                    inventoriesToUpdate.add(inventory);
+
+                    //Updating the invoiceItem
+                    invoiceItem.setQuantity(quantityAvailablePerInventory);
+                    invoiceItem.setInventoryId(inventory.getInventoryId());
+
+                    //Adding the invoice to the List
+                    invoiceItemsPerProduct.add(invoiceItem);
+
+>>>>>>> f00fc299981692406efd94cca8a90917049f7e46
                 } else {
 
                     inventory.setQuantity(quantityAvailablePerInventory - quantityToBuy);
@@ -231,6 +311,9 @@ public class ServiceLayer {
                 //Adding each InvoiceItem inside the InvoiceItemsPerProduct to the List containing all InvoiceItems
                 invoiceItemsList.add(invoiceItem);
             }
+<<<<<<< HEAD
+>>>>>>> f00fc299981692406efd94cca8a90917049f7e46
+=======
 >>>>>>> f00fc299981692406efd94cca8a90917049f7e46
         }
 
@@ -267,6 +350,7 @@ public class ServiceLayer {
                 ovm.setPointsEarned(0);
                 ovm.setTotalPoints(0);
             }
+<<<<<<< HEAD
 
             //Updating the points for the Customer in his account
             if(levelUp != null){
@@ -278,6 +362,19 @@ public class ServiceLayer {
                 }
             }
 
+=======
+
+            //Updating the points for the Customer in his account
+            if(levelUp != null){
+                try{
+                    levelUpService.updatePointsOnAccount(ovm.getCustomerId(),levelUp);
+                }catch (RuntimeException e){
+                    serviceCause = "levelupService";
+                    throw new IllegalArgumentException("Impossible to process order, error : " + e.getMessage()+ " happen when trying to update the LevelUp Account of the user");
+                }
+            }
+
+>>>>>>> f00fc299981692406efd94cca8a90917049f7e46
             ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             //Creating and saving the Invoice
@@ -446,6 +543,7 @@ public class ServiceLayer {
     }
 
     public List<InventoryViewModel> orderInventoryListByQuantity(List<InventoryViewModel> ivmList){
+<<<<<<< HEAD
 
 <<<<<<< HEAD
         int impossibleDelete = 0;
@@ -455,6 +553,10 @@ public class ServiceLayer {
             //Get all the Inventory registers related to the product
             List<InventoryViewModel> inventoryListForProduct = inventoryService.getAllInventoriesByProductId(id);
 =======
+        List<InventoryViewModel> orderedList = new ArrayList<>();
+>>>>>>> f00fc299981692406efd94cca8a90917049f7e46
+=======
+
         List<InventoryViewModel> orderedList = new ArrayList<>();
 >>>>>>> f00fc299981692406efd94cca8a90917049f7e46
 
@@ -472,16 +574,20 @@ public class ServiceLayer {
             if(x < quantityLargerToLower.size()){
 
 <<<<<<< HEAD
+<<<<<<< HEAD
                 if(count != inventoryListForProduct.size()){
                     impossibleDelete++;
                 }else{
                     productService.deleteProduct(id);
 =======
+=======
+>>>>>>> f00fc299981692406efd94cca8a90917049f7e46
                 if(ivm.getQuantity() == quantityLargerToLower.get(x)){
                     orderedList.add(ivm);
                     ivmList.remove(i);
                     x++;
                     i = -1;
+<<<<<<< HEAD
 >>>>>>> f00fc299981692406efd94cca8a90917049f7e46
                 }
             }else{
@@ -506,6 +612,14 @@ public class ServiceLayer {
         }
 
 =======
+        return orderedList;
+>>>>>>> f00fc299981692406efd94cca8a90917049f7e46
+=======
+                }
+            }else{
+                i = ivmList.size();
+            }
+        }
         return orderedList;
 >>>>>>> f00fc299981692406efd94cca8a90917049f7e46
     }

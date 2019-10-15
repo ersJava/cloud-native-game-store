@@ -1,9 +1,13 @@
 package com.company.adminapiservice.service;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 import com.company.adminapiservice.exception.DeleteNotAllowedException;
 import com.company.adminapiservice.exception.InvoiceNotFoundException;
 import com.company.adminapiservice.exception.LevelUpNotFoundException;
+=======
+import com.company.adminapiservice.exception.OrderProcessFailException;
+>>>>>>> f00fc299981692406efd94cca8a90917049f7e46
 =======
 import com.company.adminapiservice.exception.OrderProcessFailException;
 >>>>>>> f00fc299981692406efd94cca8a90917049f7e46
@@ -34,6 +38,7 @@ public class ServiceLayerTest {
     public void setUp() throws Exception {
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         setUpCustomerServiceMock();
         setUpInventoryServiceMock();
         setUpInvoiceServiceMock();
@@ -46,6 +51,8 @@ public class ServiceLayerTest {
 
     public void setUpCustomerServiceMock(){
 =======
+=======
+>>>>>>> f00fc299981692406efd94cca8a90917049f7e46
         setUpInvoiceServiceMock();
 
         setLevelUpServiceMock();
@@ -204,13 +211,20 @@ public class ServiceLayerTest {
     }
 
     public void setCustomerServiceMock(){
+<<<<<<< HEAD
+>>>>>>> f00fc299981692406efd94cca8a90917049f7e46
+=======
 >>>>>>> f00fc299981692406efd94cca8a90917049f7e46
         customerService = mock(CustomerService.class);
 
         CustomerViewModel customer = new CustomerViewModel();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         customer.setCustomerId(10);
+=======
+        customer.setCustomerId(1);
+>>>>>>> f00fc299981692406efd94cca8a90917049f7e46
 =======
         customer.setCustomerId(1);
 >>>>>>> f00fc299981692406efd94cca8a90917049f7e46
@@ -223,7 +237,10 @@ public class ServiceLayerTest {
         customer.setPhone("718-963-895");
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> f00fc299981692406efd94cca8a90917049f7e46
         doReturn(customer).when(customerService).getCustomer(1);
     }
 
@@ -246,6 +263,9 @@ public class ServiceLayerTest {
 
         doReturn(product1).when(productService).getProduct(1);
         doReturn(product2).when(productService).getProduct(2);
+<<<<<<< HEAD
+>>>>>>> f00fc299981692406efd94cca8a90917049f7e46
+=======
 >>>>>>> f00fc299981692406efd94cca8a90917049f7e46
 
     }
@@ -253,6 +273,7 @@ public class ServiceLayerTest {
     public void setUpInventoryServiceMock(){
         inventoryService = mock(InventoryService.class);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         InventoryViewModel inventory = new InventoryViewModel();
         inventory.setInventoryId(1);
@@ -381,6 +402,8 @@ public class ServiceLayerTest {
         doThrow(new InvoiceNotFoundException("No Invoices found for Customer 1")).when(invoiceService).getInvoicesByCustomerId(1);
         doThrow(new InvoiceNotFoundException("No Invoices found for Customer 11")).when(invoiceService).getInvoicesByCustomerId(11);
 =======
+=======
+>>>>>>> f00fc299981692406efd94cca8a90917049f7e46
         InventoryViewModel inventory1 = new InventoryViewModel();
         inventory1.setInventoryId(1);
         inventory1.setProductId(1);
@@ -441,6 +464,7 @@ public class ServiceLayerTest {
         doThrow(new RuntimeException()).when(inventoryService).updateInventory(inventory4Updated.getInventoryId(), inventory4Updated);
         doThrow(new RuntimeException()).when(inventoryService).updateInventory(inventory1Updated.getInventoryId(), inventory1Updated);
 
+<<<<<<< HEAD
 >>>>>>> f00fc299981692406efd94cca8a90917049f7e46
 
 
@@ -560,6 +584,13 @@ public class ServiceLayerTest {
         assertEquals("Impossible Deletion, there is Products still in inventory", msg);
 =======
     @Test
+=======
+
+
+    }
+
+    @Test
+>>>>>>> f00fc299981692406efd94cca8a90917049f7e46
     public void processOrderTest() {
         ProductToBuyViewModel product1 = new ProductToBuyViewModel();
         product1.setProductId(1);
@@ -593,6 +624,7 @@ public class ServiceLayerTest {
 
         assertEquals(1,1);
 
+<<<<<<< HEAD
     }
 
     @Test
@@ -648,6 +680,63 @@ public class ServiceLayerTest {
     }
 
     @Test
+=======
+    }
+
+    @Test
+    public void getInvoiceTest(){
+        //Setting up the InvoiceItems list for the Object to be returned
+        InvoiceItemViewModel invoiceItem1 = new InvoiceItemViewModel();
+        invoiceItem1.setInvoiceItemId(1);
+        invoiceItem1.setInvoiceId(1);
+        invoiceItem1.setInventoryId(3);
+        invoiceItem1.setQuantity(3);
+        invoiceItem1.setUnitPrice(new BigDecimal("200.23"));
+
+        InvoiceItemViewModel invoiceItem2 = new InvoiceItemViewModel();
+        invoiceItem2.setInvoiceItemId(2);
+        invoiceItem2.setInvoiceId(1);
+        invoiceItem2.setInventoryId(1);
+        invoiceItem2.setQuantity(2);
+        invoiceItem2.setUnitPrice(new BigDecimal("200.23"));
+
+        InvoiceItemViewModel invoiceItem3 = new InvoiceItemViewModel();
+        invoiceItem3.setInvoiceItemId(3);
+        invoiceItem3.setInvoiceId(1);
+        invoiceItem3.setInventoryId(4);
+        invoiceItem3.setQuantity(2);
+        invoiceItem3.setUnitPrice(new BigDecimal("300.54"));
+
+        List<InvoiceItemViewModel> invoiceItems = new ArrayList<>();
+
+        invoiceItems.add(invoiceItem1);
+        invoiceItems.add(invoiceItem2);
+        invoiceItems.add(invoiceItem3);
+
+        //Creating the Expected Invoice
+        InvoiceViewModel invoice = new InvoiceViewModel();
+
+        invoice.setInvoiceId(1);
+        invoice.setPurchaseDate(LocalDate.of(2019,12,13));
+        invoice.setCustomerId(1);
+        invoice.setItemList(invoiceItems);
+
+        //Reading the Invoice from the Service
+        InvoiceViewModel fromService = serviceLayer.getInvoice(invoice.getInvoiceId());
+
+        assertEquals(invoice, fromService);
+
+    }
+
+    @Test
+    public void getAllInvoicesTest(){
+        List<InvoiceViewModel> allInvoices = serviceLayer.getAllInvoices();
+
+        assertEquals(allInvoices.size(),3);
+    }
+
+    @Test
+>>>>>>> f00fc299981692406efd94cca8a90917049f7e46
     public void getInvoicesByCustomerIdTest(){
         List<InvoiceViewModel> invoicesForCustomer26 = serviceLayer.getInvoicesByCustomerId(2);
 
@@ -755,6 +844,9 @@ public class ServiceLayerTest {
 
         assertEquals(ordered.size(),4);
 
+<<<<<<< HEAD
+>>>>>>> f00fc299981692406efd94cca8a90917049f7e46
+=======
 >>>>>>> f00fc299981692406efd94cca8a90917049f7e46
     }
 }
