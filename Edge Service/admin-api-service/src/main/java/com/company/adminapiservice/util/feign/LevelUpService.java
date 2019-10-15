@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @FeignClient(name = "level-up-service")
@@ -16,7 +15,7 @@ public interface LevelUpService {
     //uri: /levelup
     //Create levelup account
     @RequestMapping(value = "/levelup", method = RequestMethod.POST)
-    LevelUpViewModel createLevelUpAccount(@RequestBody @Valid LevelUpViewModel lvm);
+    LevelUpViewModel createLevelUpAccount(@RequestBody LevelUpViewModel lvm);
 
     //Get all the accounts
     @RequestMapping(value = "/levelup", method = RequestMethod.GET)
@@ -33,7 +32,7 @@ public interface LevelUpService {
 
     //Update points by customerId
     @RequestMapping(value = "/levelup/points/{customerId}", method = RequestMethod.PUT)
-    void updatePointsOnAccount(@PathVariable("customerId") int customerId, @RequestBody @Valid LevelUpViewModel lvm);
+    void updatePointsOnAccount(@PathVariable("customerId") int customerId, @RequestBody LevelUpViewModel lvm);
 
     //Get points by CustomerId
     @RequestMapping(value = "/levelup/points/{customerId}", method = RequestMethod.GET)
